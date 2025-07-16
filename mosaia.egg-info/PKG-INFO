@@ -1,0 +1,253 @@
+Metadata-Version: 2.2
+Name: mosaia
+Version: 0.1.0
+Summary: A Python SDK for Mosaia API
+Home-page: https://github.com/mosaia-development/mosaia-python-sdk
+Author: Mosaia
+Author-email: development@mosaia.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.25.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: bson>=0.5.0
+Requires-Dist: aiohttp>=3.8.0
+Provides-Extra: test
+Requires-Dist: pytest>=7.0; extra == "test"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "test"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Mosaia Python SDK
+
+A Python SDK for constructing 3rd party app integrations on the Mosaia platform.
+
+## Installation
+
+```bash
+pip install mosaia
+```
+
+## Quick Start
+
+```python
+from mosaia import Mosaia, MosiaConfig
+
+# Initialize the SDK
+config = MosiaConfig(
+    api_key="your_api_key",
+    version="1",
+    base_url="https://api.mosaia.ai"
+)
+
+client = Mosaia(config)
+
+# Or initialize with defaults
+client = Mosaia()
+client.generate_api_key("your_client_id", "your_client_secret")
+```
+
+## Features
+
+### Apps API
+
+Manage applications on the Mosaia platform:
+
+```python
+# Get all apps
+apps = client.apps.get()
+
+# Get a specific app
+app = client.apps.get(AppInterface(id="app_id"))
+
+# Create a new app
+new_app = client.apps.create(AppInterface(
+    name="My App",
+    short_description="A great app",
+    org="org_id"
+))
+
+# Update an app
+updated_app = client.apps.update(AppInterface(
+    id="app_id",
+    name="Updated App Name",
+    short_description="Updated description"
+))
+
+# Delete an app
+client.apps.delete(AppInterface(id="app_id"))
+```
+
+### Tools API
+
+Manage tools for your applications:
+
+```python
+# Get all tools (requires user or org ID)
+tools = client.tools.get()
+
+# Get a specific tool
+tool = client.tools.get(ToolInterface(id="tool_id"))
+
+# Get tool by name
+tool = client.tools.get_by_name("tool_name")
+
+# Create a new tool
+new_tool = client.tools.create(ToolInterface(
+    name="my_tool",
+    short_description="A useful tool",
+    tool_schema='{"type": "object"}',
+    org="org_id"
+))
+
+# Update a tool
+updated_tool = client.tools.update(ToolInterface(
+    id="tool_id",
+    name="updated_tool",
+    short_description="Updated description"
+))
+
+# Delete a tool
+client.tools.delete(ToolInterface(id="tool_id"))
+```
+
+### App Bots API
+
+Manage bots for your applications:
+
+```python
+# Get all bots for an app
+bots = client.apps.get(AppInterface(id="app_id"))
+app_bots = AppBots(client.apps, app=AppInterface(id="app_id"))
+bots = app_bots.get()
+
+# Get a specific bot
+bot = app_bots.get(AppBotInterface(id="bot_id"))
+
+# Get bot by ID
+bot = app_bots.get_by_id(AppBotInterface(id="bot_id", api_key="bot_api_key"))
+
+# Create a new bot
+new_bot = app_bots.create(AppBotInterface(
+    app="app_id",
+    response_url="https://example.com/webhook"
+))
+
+# Update a bot
+updated_bot = app_bots.update(AppBotInterface(
+    id="bot_id",
+    app="app_id",
+    response_url="https://new-url.com/webhook"
+))
+
+# Delete a bot
+app_bots.delete(AppBotInterface(id="bot_id"))
+```
+
+### OAuth Support
+
+Handle OAuth2 Authorization Code flow with PKCE:
+
+```python
+# Initialize OAuth
+oauth = client.oauth(
+    redirect_uri="https://your-app.com/callback",
+    scopes=["read", "write"]
+)
+
+# Get authorization URL
+auth_data = oauth.get_authorization_url_and_code_verifier()
+auth_url = auth_data["url"]
+code_verifier = auth_data["code_verifier"]
+
+# Exchange code for token (after user authorizes)
+token_response = await oauth.exchange_code_for_token(
+    code="authorization_code",
+    code_verifier=code_verifier
+)
+
+# Refresh token
+new_token_response = await oauth.refresh_token(
+    refresh_token=token_response.refresh_token
+)
+```
+
+### Error Handling
+
+The SDK provides structured error handling:
+
+```python
+from mosaia import is_sdk_error
+
+try:
+    app = client.apps.get(AppInterface(id="invalid_id"))
+except Exception as e:
+    if is_sdk_error(e):
+        print(f"SDK Error: {e.message} (Code: {e.code})")
+    else:
+        print(f"Network Error: {e}")
+```
+
+## Configuration
+
+The SDK supports various configuration options:
+
+```python
+config = MosiaConfig(
+    api_key="your_api_key",
+    version="1",
+    base_url="https://api.mosaia.ai",
+    frontend_url="https://mosaia.ai",
+    client_id="your_client_id",
+    client_secret="your_client_secret",
+    user="user_id",
+    org="org_id"
+)
+```
+
+## Types
+
+The SDK provides comprehensive type definitions:
+
+- `MosiaConfig`: Configuration interface
+- `AppInterface`: App data interface
+- `ToolInterface`: Tool data interface
+- `AppBotInterface`: App bot data interface
+- `OAuthConfig`: OAuth configuration
+- `OAuthTokenResponse`: OAuth token response
+- `ErrorResponse`: Error response structure
+
+## Legacy Support
+
+The SDK maintains backward compatibility with the original API:
+
+```python
+# Legacy properties (deprecated)
+orgs = client.orgs
+users = client.users
+agents = client.agents
+agent_groups = client.agent_groups
+```
+
+## Requirements
+
+- Python 3.10+
+- requests>=2.25.0
+- pydantic>=2.0.0
+- bson>=0.5.0
+- aiohttp>=3.8.0 (for OAuth)
+
+## License
+
+Apache-2.0
+
