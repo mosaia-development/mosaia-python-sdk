@@ -80,6 +80,16 @@ class Mosaia:
         """Get the Tools API client"""
         return Tools(self.config)
     
+    @property
+    def api_key(self) -> Optional[str]:
+        """Get the current API key"""
+        return self.config.api_key
+    
+    @property
+    def app_bots(self) -> AppBots:
+        """Get the App Bots API client"""
+        return AppBots(self.apps, None)
+    
     def oauth(self, redirect_uri: str, scopes: Optional[list] = None) -> OAuth:
         """
         Creates a new OAuth instance for handling OAuth2 Authorization Code flow with PKCE

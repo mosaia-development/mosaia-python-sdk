@@ -1,5 +1,5 @@
-from typing import List, Optional, Union, Dict, Any, Annotated
-from pydantic import BaseModel, Field, BeforeValidator
+from typing import List, Optional, Union, Dict, Any
+from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 from .base_entity import BaseEntity
 from .user import User
@@ -27,7 +27,7 @@ class CodeExecutionConfig(BaseModel):
 class AgentGroup(BaseEntity):
     org: Optional[Union[str, Organization]] = Field(None, description="Reference to Organization")
     user: Optional[Union[str, User]] = Field(None, description="Reference to User")
-    name: Optional[Annotated[str, BeforeValidator(validate_identifier_name, 'name')]] = Field(None, description="Name of the agent group")
+    name: Optional[str] = Field(None, description="Name of the agent group")
     description: Optional[str] = Field(None, description="Description of the agent group")
     image: Optional[str] = Field(None, description="Image of the agent group")
     readme: Optional[str] = Field(None, description="Readme of the agent group")
@@ -45,3 +45,10 @@ class AgentGroup(BaseEntity):
     external_id: Optional[str] = Field(None, index=True, description="External ID of the agent group")
     extensors: Optional[Dict[str, Any]] = None
     record_history: Optional[RecordHistory] = None
+
+    @field_validator('name')
+    @classmethod
+    def validate_name(cls, v):
+        if v is not None:
+            return validate_identifier_name(v)
+        return v

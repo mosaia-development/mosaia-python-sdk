@@ -5,7 +5,7 @@ API Client for making HTTP requests to the Mosaia API
 import requests
 from typing import Optional, Dict, Any, Union
 from mosaia.config import DEFAULT_CONFIG
-from mosaia.types import MosiaConfig, APIResponse, ErrorResponse
+from mosaia.types import MosiaConfig, APIResponse
 from mosaia.utils import create_error_response
 
 class APIClient:
@@ -32,7 +32,7 @@ class APIClient:
                 'Authorization': f"{DEFAULT_CONFIG['AUTH']['TOKEN_PREFIX']} {config.api_key}"
             })
     
-    def _handle_error(self, response: requests.Response) -> ErrorResponse:
+    def _handle_error(self, response: requests.Response):
         """
         Handle HTTP errors and create standardized error responses
         
@@ -40,7 +40,7 @@ class APIClient:
             response: The HTTP response
             
         Returns:
-            ErrorResponse: Standardized error response
+            SDKException: Standardized error exception
         """
         try:
             error_data = response.json()
@@ -76,7 +76,7 @@ class APIClient:
             APIResponse: The API response
             
         Raises:
-            ErrorResponse: If the request fails
+            SDKException: If the request fails
         """
         url = f"{self.config.base_url}{path}"
         

@@ -76,8 +76,8 @@ class ToolInterface(BaseModel):
 class AppBotInterface(BaseModel):
     """App Bot interface"""
     id: Optional[str] = None
-    app: Union[str, AppInterface]
-    response_url: str
+    app: Optional[Union[str, AppInterface]] = None
+    response_url: Optional[str] = None
     org: Optional[str] = None
     user: Optional[str] = None
     agent: Optional[str] = None

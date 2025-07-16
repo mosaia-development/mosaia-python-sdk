@@ -1,12 +1,11 @@
 from .base_entity import BaseEntity
 from typing import (
     Dict,
-    Annotated,
     Optional
 )
 from pydantic import (
     Field,
-    BeforeValidator
+    field_validator
 )
 from .utils import (
     validate_identifier_name,
@@ -15,14 +14,42 @@ from .utils import (
 )
 
 class User(BaseEntity):
-    username: Optional[Annotated[str, BeforeValidator(validate_identifier_name, 'username')]] = Field(None, description="Username of the user")
+    username: Optional[str] = Field(None, description="Username of the user")
     name: Optional[str] = Field(None, description="Name of the user")
-    image: Optional[Annotated[str, BeforeValidator(validate_url, 'image')]] = Field(None, description="Image of the user")
+    image: Optional[str] = Field(None, description="Image of the user")
     description: Optional[str] = Field(None, description="Description of the user")
-    email: Optional[Annotated[str, BeforeValidator(validate_email, 'email')]] = Field(None, description="Email of the user")
-    url: Optional[Annotated[str, BeforeValidator(validate_url, 'url')]] = Field(None, description="URL of the user")
+    email: Optional[str] = Field(None, description="Email of the user")
+    url: Optional[str] = Field(None, description="URL of the user")
     location: Optional[str] = Field(None, description="Location of the user")
     links: Dict = Field(default_factory=dict, description="Links of the user")
+
+    @field_validator('username')
+    @classmethod
+    def validate_username(cls, v):
+        if v is not None:
+            return validate_identifier_name(v)
+        return v
+
+    @field_validator('image')
+    @classmethod
+    def validate_image(cls, v):
+        if v is not None:
+            return validate_url(v, 'image')
+        return v
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, v):
+        if v is not None:
+            return validate_email(v, 'email')
+        return v
+
+    @field_validator('url')
+    @classmethod
+    def validate_url_field(cls, v):
+        if v is not None:
+            return validate_url(v, 'url')
+        return v
 
     @property
     def agents(self):

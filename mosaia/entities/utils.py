@@ -1,14 +1,11 @@
 from typing import Optional
 import re
 
-def validate_identifier_name(value: Optional[str], field: str) -> Optional[str]:
-    print("================")
-    print(value)
-    print("================")
+def validate_identifier_name(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
     if not re.match(r'^[a-zA-Z0-9_-]+$', value):
-        raise ValueError(f'Invalid {field}. {field} can only contain letters, numbers, underscores, and hyphens')
+        raise ValueError('Invalid name. Name can only contain letters, numbers, underscores, and hyphens')
     return value
 
 def validate_email(value: Optional[str], field: str) -> Optional[str]:

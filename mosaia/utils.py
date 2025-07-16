@@ -5,6 +5,15 @@ Utility functions for the Mosaia SDK
 from typing import Any, Dict
 from .types import ErrorResponse
 
+class SDKException(Exception):
+    """Base exception for SDK errors"""
+    
+    def __init__(self, message: str, code: str = "UNKNOWN_ERROR", status: int = 400):
+        self.message = message
+        self.code = code
+        self.status = status
+        super().__init__(self.message)
+
 def is_sdk_error(error: Any) -> bool:
     """
     Check if an error is an SDK error
@@ -15,9 +24,9 @@ def is_sdk_error(error: Any) -> bool:
     Returns:
         bool: True if it's an SDK error, False otherwise
     """
-    return isinstance(error, dict) and 'message' in error and 'code' in error and 'status' in error
+    return isinstance(error, SDKException)
 
-def create_error_response(message: str, code: str = "UNKNOWN_ERROR", status: int = 400) -> ErrorResponse:
+def create_error_response(message: str, code: str = "UNKNOWN_ERROR", status: int = 400) -> SDKException:
     """
     Create a standardized error response
     
@@ -27,9 +36,9 @@ def create_error_response(message: str, code: str = "UNKNOWN_ERROR", status: int
         status: HTTP status code
         
     Returns:
-        ErrorResponse: The error response
+        SDKException: The error exception
     """
-    return ErrorResponse(
+    return SDKException(
         message=message,
         code=code,
         status=status

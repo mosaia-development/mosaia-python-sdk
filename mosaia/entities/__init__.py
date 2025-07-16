@@ -5,7 +5,7 @@ Entities module for the Mosaia SDK
 from .base_entity import BaseEntity
 from .agent import Agent
 from .agent_group import AgentGroup
-from .org import Org
+from .org import Org, Organization
 from .user import User
 from .model import Model
 from .record_history import RecordHistory
@@ -18,6 +18,7 @@ __all__ = [
     'Agent',
     'AgentGroup', 
     'Org',
+    'Organization',
     'User',
     'Model',
     'RecordHistory',
