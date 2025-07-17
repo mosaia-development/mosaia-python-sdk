@@ -1,4 +1,10 @@
 # Mosaia Python SDK
+[![PyPI version](https://badge.fury.io/py/mosaia.svg)](https://badge.fury.io/py/mosaia)
+![GitHub all releases](https://img.shields.io/github/commit-activity/m/mosaia-development/mosaia-python-sdk)
+![GitHub contributors](https://img.shields.io/github/contributors-anon/mosaia-development/mosaia-python-sdk)
+![PyPI Downloads](https://img.shields.io/pypi/dm/mosaia)
+![Python Version](https://img.shields.io/pypi/pyversions/mosaia)
+![License](https://img.shields.io/pypi/l/mosaia)
 
 A comprehensive Python SDK for the Mosaia platform, providing feature parity with the Node.js SDK. This SDK enables you to build 3rd party app integrations, manage applications, tools, and bots with a Pythonic, type-safe interface.
 
