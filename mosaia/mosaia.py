@@ -5,7 +5,7 @@ Main Mosaia SDK client
 from typing import Dict, Optional
 from mosaia.config import DEFAULT_CONFIG
 from mosaia.types import MosiaConfig, OAuthConfig
-from mosaia.apis import Apps, Tools, AppBots
+from mosaia.apis import Apps, Tools, AppBots, Auth, Users, Organizations, Agents, AgentGroups, Models, Clients, Billing, Permissions
 from mosaia.oauth import OAuth
 from mosaia.utils import is_sdk_error
 
@@ -90,6 +90,51 @@ class Mosaia:
         """Get the App Bots API client"""
         return AppBots(self.apps, None)
     
+    @property
+    def auth(self) -> Auth:
+        """Get the Auth API client"""
+        return Auth(self.config)
+    
+    @property
+    def users(self) -> Users:
+        """Get the Users API client"""
+        return Users(self.config)
+    
+    @property
+    def organizations(self) -> Organizations:
+        """Get the Organizations API client"""
+        return Organizations(self.config)
+    
+    @property
+    def agents(self) -> Agents:
+        """Get the Agents API client"""
+        return Agents(self.config)
+    
+    @property
+    def agent_groups(self) -> AgentGroups:
+        """Get the Agent Groups API client"""
+        return AgentGroups(self.config)
+    
+    @property
+    def models(self) -> Models:
+        """Get the Models API client"""
+        return Models(self.config)
+    
+    @property
+    def clients(self) -> Clients:
+        """Get the Clients API client"""
+        return Clients(self.config)
+    
+    @property
+    def billing(self) -> Billing:
+        """Get the Billing API client"""
+        return Billing(self.config)
+    
+    @property
+    def permissions(self) -> Permissions:
+        """Get the Permissions API client"""
+        return Permissions(self.config)
+    
     def oauth(self, redirect_uri: str, scopes: Optional[list] = None) -> OAuth:
         """
         Creates a new OAuth instance for handling OAuth2 Authorization Code flow with PKCE
@@ -118,24 +163,23 @@ class Mosaia:
     # Legacy properties for backward compatibility
     @property
     def orgs(self):
-        """Legacy property - use apps instead"""
-        from mosaia.requests.org_request import OrganizationRequest
-        return OrganizationRequest(self.config.base_url, self.config.api_key)
-    
+        """Legacy property - use organizations instead"""
+        return self.organizations
+
     @property
-    def users(self):
-        """Legacy property - use apps instead"""
+    def users_legacy(self):
+        """Legacy property - use users instead"""
         from mosaia.requests.user_request import UserRequest
         return UserRequest(self.config.base_url, self.config.api_key)
-    
+
     @property
-    def agents(self):
-        """Legacy property - use apps instead"""
+    def agents_legacy(self):
+        """Legacy property - use agents instead"""
         from mosaia.requests.agent_request import AgentRequest
         return AgentRequest(self.config.base_url, self.config.api_key)
-    
+
     @property
-    def agent_groups(self):
-        """Legacy property - use apps instead"""
+    def agent_groups_legacy(self):
+        """Legacy property - use agent_groups instead"""
         from mosaia.requests.agent_group_request import AgentGroupRequest
         return AgentGroupRequest(self.config.base_url, self.config.api_key)

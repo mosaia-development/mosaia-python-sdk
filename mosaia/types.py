@@ -90,6 +90,151 @@ class AppBotInterface(BaseModel):
     external_id: Optional[str] = None
     record_history: Optional[Dict[str, str]] = None
 
+class UserInterface(BaseModel):
+    """User interface"""
+    id: Optional[str] = None
+    email: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    org: Optional[str] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class OrganizationInterface(BaseModel):
+    """Organization interface"""
+    id: Optional[str] = None
+    name: str
+    short_description: Optional[str] = None
+    long_description: Optional[str] = None
+    image: Optional[str] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class AgentInterface(BaseModel):
+    """Agent interface"""
+    id: Optional[str] = None
+    name: str
+    short_description: Optional[str] = None
+    long_description: Optional[str] = None
+    model: Optional[str] = None
+    system_prompt: Optional[str] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    active: Optional[bool] = None
+    public: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class AgentGroupInterface(BaseModel):
+    """Agent Group interface"""
+    id: Optional[str] = None
+    name: str
+    short_description: Optional[str] = None
+    long_description: Optional[str] = None
+    agents: Optional[List[str]] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    active: Optional[bool] = None
+    public: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class ModelInterface(BaseModel):
+    """Model interface"""
+    id: Optional[str] = None
+    name: str
+    short_description: Optional[str] = None
+    long_description: Optional[str] = None
+    provider: Optional[str] = None
+    model_id: Optional[str] = None
+    max_tokens: Optional[int] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    active: Optional[bool] = None
+    public: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class ClientInterface(BaseModel):
+    """Client interface"""
+    id: Optional[str] = None
+    name: str
+    client_id: Optional[str] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    redirect_uris: Optional[List[str]] = None
+    scopes: Optional[List[str]] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class WalletInterface(BaseModel):
+    """Wallet interface"""
+    id: Optional[str] = None
+    balance: Optional[float] = None
+    currency: Optional[str] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class MeterInterface(BaseModel):
+    """Meter interface"""
+    id: Optional[str] = None
+    type: Optional[str] = None
+    value: Optional[int] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class AccessPolicyInterface(BaseModel):
+    """Access Policy interface"""
+    id: Optional[str] = None
+    name: str
+    effect: Optional[str] = None
+    actions: Optional[List[str]] = None
+    resources: Optional[List[str]] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class OrgPermissionInterface(BaseModel):
+    """Org Permission interface"""
+    id: Optional[str] = None
+    org: Optional[str] = None
+    user: Optional[str] = None
+    policy: Optional[str] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
+class UserPermissionInterface(BaseModel):
+    """User Permission interface"""
+    id: Optional[str] = None
+    user: Optional[str] = None
+    client: Optional[str] = None
+    policy: Optional[str] = None
+    active: Optional[bool] = None
+    tags: Optional[List[str]] = None
+    extensors: Optional[Dict[str, str]] = None
+    external_id: Optional[str] = None
+
 class DehydratedAppBotInterface(BaseModel):
     """Dehydrated App Bot interface (without nested objects)"""
     id: str
