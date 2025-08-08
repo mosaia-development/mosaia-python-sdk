@@ -11,6 +11,8 @@ A comprehensive Python SDK for the Mosaia AI platform, providing access to all p
 - **Async Support**: Built-in async/await support for all operations
 - **Error Handling**: Comprehensive error handling and validation
 - **Documentation**: Extensive docstrings and examples
+- **Robust URL Construction**: Proper API version injection and URL formatting
+- **Comprehensive Testing**: Extensive test coverage with 20+ test cases
 
 ## Installation
 
@@ -25,10 +27,11 @@ pip install mosaia
 ```python
 from mosaia import MosaiaClient
 
-# Initialize with API key
+# Initialize with API key and version
 client = MosaiaClient({
     "api_key": "your-api-key",
-    "api_url": "https://api.mosaia.ai"
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"  # API version (defaults to "1")
 })
 
 # Get all users
@@ -101,7 +104,7 @@ The SDK includes a sandbox environment for testing and experimentation, similar 
 ### Sandbox Features
 
 The sandbox tests the following functionality:
-- ✅ **Authentication** - Email/password authentication
+- ✅ **Authentication** - Email/password authentication with proper API versioning
 - ✅ **Agents** - Agent listing and chat completions
 - ✅ **Users** - User session and user-related operations
 - ✅ **Organizations** - Organization listing and details
@@ -143,7 +146,30 @@ The sandbox tests the following functionality:
 ✅ Sandbox tests completed successfully!
 ```
 
-For more information, see [SANDBOX_README.md](SANDBOX_README.md).
+## Recent Updates
+
+### URL Construction Improvements (v1.1.0)
+
+The SDK now includes improved URL construction that properly handles API versioning:
+
+- ✅ **Proper API Version Injection**: URLs now correctly include the API version (e.g., `/v1/auth/signin`)
+- ✅ **Leading Slash Handling**: Automatic removal of leading slashes for consistent URL formatting
+- ✅ **Query Parameter Support**: Proper query string construction and encoding
+- ✅ **Complex Path Support**: Handles complex nested paths correctly
+
+**Before (v1.0.0)**:
+```python
+# URLs were missing API version
+# https://api.mosaia.ai/auth/signin  # ❌ Missing /v1
+```
+
+**After (v1.1.0)**:
+```python
+# URLs now include proper API version
+# https://api.mosaia.ai/v1/auth/signin  # ✅ Correct
+# https://api.mosaia.ai/v1/users/123/agents/456  # ✅ Complex paths
+# https://api.mosaia.ai/v1/users?limit=10&offset=0  # ✅ Query params
+```
 
 ## Authentication
 
@@ -153,7 +179,9 @@ For more information, see [SANDBOX_README.md](SANDBOX_README.md).
 from mosaia import MosaiaClient
 
 client = MosaiaClient({
-    "api_key": "your-api-key"
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
 })
 ```
 
@@ -165,7 +193,9 @@ from mosaia import MosaiaClient
 # Initialize client with OAuth support
 client = MosaiaClient({
     "client_id": "your-client-id",
-    "client_secret": "your-client-secret"
+    "client_secret": "your-client-secret",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
 })
 
 # Create OAuth instance
@@ -427,9 +457,43 @@ pip install -e .
 
 ### Running Tests
 
+The SDK includes comprehensive test coverage with 20+ test cases:
+
 ```bash
+# Run all tests
 pytest
+
+# Run specific test categories
+pytest tests/unit/test_api_client.py -v  # API client tests
+pytest tests/unit/test_basic.py -v       # Basic functionality tests
+
+# Run tests with coverage
+pytest --cov=mosaia tests/
 ```
+
+#### Test Coverage
+
+The test suite covers:
+
+- ✅ **Basic APIClient Functionality** (6 tests)
+  - Client creation with configuration
+  - Header construction (Authorization, Content-Type)
+  - Base URL construction with version injection
+  - Base URL with different versions
+  - Base URL with default version
+  - Base URL with custom API URL
+
+- ✅ **URL Construction** (3 tests)
+  - URL construction with leading slash removal
+  - URL construction with query parameters
+  - URL construction with different API versions
+
+- ✅ **Request Methods** (4 tests)
+  - GET, POST, PUT, DELETE request methods
+
+- ✅ **Error Handling** (2 tests)
+  - Error response creation
+  - Error handling with custom status codes
 
 ### Code Formatting
 
