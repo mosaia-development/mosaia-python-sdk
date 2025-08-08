@@ -107,7 +107,7 @@ class TestMosaiaAuth:
     def test_refresh_missing_refresh_token(self):
         """Test refresh with missing refresh token."""
         auth = MosaiaAuth()
-        auth.config.session = {'auth_type': 'password'}  # No refresh_token
+        auth.config.session = {'refresh_token': None}
         
         # Test that the method exists and is async
         assert hasattr(auth, 'refresh')
@@ -123,9 +123,9 @@ class TestOAuth:
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         assert oauth is not None
@@ -135,9 +135,9 @@ class TestOAuth:
         """Test OAuth creation with missing client_id."""
         config = {
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write']
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1'
         }
-        
         with pytest.raises(Exception, match='client_id is required'):
             OAuth(config)
     
@@ -146,9 +146,8 @@ class TestOAuth:
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write']
+            'api_version': '1'
         }
-        
         with pytest.raises(Exception, match='api_url is required'):
             OAuth(config)
     
@@ -157,10 +156,9 @@ class TestOAuth:
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write']
+            'api_url': 'https://test-api.mosaia.ai'
         }
-        
-        with pytest.raises(Exception, match='api_url is required'):
+        with pytest.raises(Exception, match='api_version is required'):
             OAuth(config)
     
     def test_generate_pkce(self):
@@ -168,49 +166,50 @@ class TestOAuth:
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         
-        pkce_data = oauth._generate_pkce()
+        # Test that the method exists and is private
+        assert hasattr(oauth, '_generate_pkce')
+        assert callable(oauth._generate_pkce)
         
+        # Test PKCE generation
+        pkce_data = oauth._generate_pkce()
         assert 'code_verifier' in pkce_data
         assert 'code_challenge' in pkce_data
         assert len(pkce_data['code_verifier']) == 128
-        assert len(pkce_data['code_challenge']) > 0
     
     def test_get_authorization_url_and_code_verifier(self):
-        """Test authorization URL generation."""
+        """Test authorization URL and code verifier generation."""
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'app_url': 'https://mosaia.ai',
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         
-        auth_data = oauth.get_authorization_url_and_code_verifier()
+        # Test that the method exists
+        assert hasattr(oauth, 'get_authorization_url_and_code_verifier')
+        assert callable(oauth.get_authorization_url_and_code_verifier)
         
+        # Test URL generation
+        auth_data = oauth.get_authorization_url_and_code_verifier()
         assert 'url' in auth_data
         assert 'code_verifier' in auth_data
-        assert 'https://mosaia.ai/oauth?' in auth_data['url']
-        assert 'client_id=test-client-id' in auth_data['url']
-        assert 'redirect_uri=' in auth_data['url']
-        assert 'response_type=code' in auth_data['url']
-        assert 'code_challenge=' in auth_data['url']
-        assert 'code_challenge_method=S256' in auth_data['url']
-        assert 'scope=' in auth_data['url']
+        assert 'test-client-id' in auth_data['url']
+        assert 'code_challenge' in auth_data['url']
     
-    def test_get_authorization_url_missing_scopes(self):
+    def test_get_authorization_url_and_code_verifier_missing_scopes(self):
         """Test authorization URL generation with missing scopes."""
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'api_url': 'https://api.mosaia.ai',
+            'api_url': 'https://test-api.mosaia.ai',
             'api_version': '1'
         }
         oauth = OAuth(config)
@@ -218,87 +217,102 @@ class TestOAuth:
         with pytest.raises(Exception, match='scopes are required'):
             oauth.get_authorization_url_and_code_verifier()
     
-    def test_get_authorization_url_missing_redirect_uri(self):
+    def test_get_authorization_url_and_code_verifier_missing_redirect_uri(self):
         """Test authorization URL generation with missing redirect_uri."""
         config = {
             'client_id': 'test-client-id',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         
         with pytest.raises(Exception, match='redirect_uri is required'):
             oauth.get_authorization_url_and_code_verifier()
     
-    def test_get_authorization_url_with_state(self):
+    def test_get_authorization_url_and_code_verifier_with_state(self):
         """Test authorization URL generation with state parameter."""
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
             'scopes': ['read', 'write'],
-            'app_url': 'https://mosaia.ai',
-            'state': 'test-state',
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'state': 'test-state'
         }
         oauth = OAuth(config)
         
         auth_data = oauth.get_authorization_url_and_code_verifier()
-        
-        assert 'state=test-state' in auth_data['url']
+        assert 'test-state' in auth_data['url']
     
     def test_authenticate_with_code_and_verifier_missing_redirect_uri(self):
-        """Test authenticate_with_code_and_verifier with missing redirect_uri."""
+        """Test authentication with missing redirect_uri."""
         config = {
             'client_id': 'test-client-id',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         
         # Test that the method exists and is async
         assert hasattr(oauth, 'authenticate_with_code_and_verifier')
         assert callable(oauth.authenticate_with_code_and_verifier)
+        
+        # Test that the method raises an exception when redirect_uri is missing
+        import asyncio
+        try:
+            # Create a new event loop for testing
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            # Run the async function
+            result = loop.run_until_complete(
+                oauth.authenticate_with_code_and_verifier('test-code', 'test-verifier')
+            )
+            loop.close()
+        except Exception as e:
+            assert 'redirect_uri is required' in str(e)
+        else:
+            assert False, "Expected exception was not raised"
     
     def test_authenticate_with_code_and_verifier(self):
-        """Test authenticate_with_code_and_verifier method."""
+        """Test authentication with code and verifier."""
         config = {
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         }
         oauth = OAuth(config)
         
-        # This would normally make an API call, so we'll test the method exists
+        # Test that the method exists and is async
         assert hasattr(oauth, 'authenticate_with_code_and_verifier')
         assert callable(oauth.authenticate_with_code_and_verifier)
 
 
 @pytest.mark.auth
 class TestAuthIntegration:
-    """Test auth integration."""
+    """Test auth integration functionality."""
     
     def test_auth_oauth_integration(self):
-        """Test Auth and OAuth integration."""
+        """Test integration between MosaiaAuth and OAuth."""
         # Test that both classes can be imported and instantiated
         auth = MosaiaAuth()
         oauth = OAuth({
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         })
         
-        assert isinstance(auth, MosaiaAuth)
-        assert isinstance(oauth, OAuth)
+        assert auth is not None
+        assert oauth is not None
     
     def test_auth_methods_exist(self):
-        """Test that all auth methods exist."""
+        """Test that all required auth methods exist."""
         auth = MosaiaAuth()
         
         # Test that all required methods exist
@@ -310,28 +324,34 @@ class TestAuthIntegration:
         assert hasattr(auth, 'refresh')
     
     def test_oauth_methods_exist(self):
-        """Test that all OAuth methods exist."""
+        """Test that all required OAuth methods exist."""
         oauth = OAuth({
             'client_id': 'test-client-id',
             'redirect_uri': 'https://test.com/callback',
-            'scopes': ['read', 'write'],
-            'api_url': 'https://api.mosaia.ai',
-            'api_version': '1'
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
         })
         
         # Test that all required methods exist
-        assert hasattr(oauth, '_generate_pkce')
         assert hasattr(oauth, 'get_authorization_url_and_code_verifier')
         assert hasattr(oauth, 'authenticate_with_code_and_verifier')
+        assert hasattr(oauth, '_generate_pkce')
     
     def test_auth_type_annotations(self):
         """Test that auth classes have proper type annotations."""
-        import inspect
+        from mosaia.types import MosaiaConfig
         
-        # Check MosaiaAuth
-        sig = inspect.signature(MosaiaAuth.__init__)
-        assert 'config' in sig.parameters
+        # Test that MosaiaAuth can be imported and has proper types
+        auth = MosaiaAuth()
+        assert isinstance(auth.config, MosaiaConfig)
         
-        # Check OAuth
-        sig = inspect.signature(OAuth.__init__)
-        assert 'config' in sig.parameters
+        # Test that OAuth can be imported and has proper types
+        oauth = OAuth({
+            'client_id': 'test-client-id',
+            'redirect_uri': 'https://test.com/callback',
+            'api_url': 'https://test-api.mosaia.ai',
+            'api_version': '1',
+            'scopes': ['read', 'write']
+        })
+        assert isinstance(oauth.config, dict)

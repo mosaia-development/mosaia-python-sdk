@@ -50,10 +50,10 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             ...     def __init__(self):
             ...         super().__init__('/user')
         """
-        self.config_manager = ConfigurationManager.get_instance()
+        self._config_manager = ConfigurationManager.get_instance()
         # Create API client (uses ConfigurationManager internally)
-        self.api_client = APIClient()
-        self.uri = uri or ''
+        self._api_client = APIClient()
+        self._uri = uri or ''
     
     @property
     def config(self) -> MosaiaConfig:
@@ -71,7 +71,57 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             >>> print('API URL:', current_config.api_url)
             >>> print('API Key:', current_config.api_key)
         """
-        return self.config_manager.get_config()
+        return self._config_manager.get_config()
+    
+    @property
+    def uri(self) -> str:
+        """
+        Get the base URI for this function class.
+        
+        This property provides access to the base URI used for API requests.
+        
+        Returns:
+            The base URI string
+            
+        Examples:
+            >>> functions = BaseFunctions('/user')
+            >>> print('URI:', functions.uri)  # '/user'
+        """
+        return self._uri
+    
+    @property
+    def api_client(self) -> APIClient:
+        """
+        Get the API client instance.
+        
+        This property provides access to the internal API client used for
+        making HTTP requests.
+        
+        Returns:
+            The APIClient instance
+            
+        Examples:
+            >>> functions = BaseFunctions()
+            >>> client = functions.api_client
+        """
+        return self._api_client
+    
+    @property
+    def config_manager(self) -> ConfigurationManager:
+        """
+        Get the configuration manager instance.
+        
+        This property provides access to the internal configuration manager
+        used for managing SDK configuration.
+        
+        Returns:
+            The ConfigurationManager instance
+            
+        Examples:
+            >>> functions = BaseFunctions()
+            >>> manager = functions.config_manager
+        """
+        return self._config_manager
     
     async def get(self, params: Optional[Dict[str, Any]] = None, id: Optional[str] = None) -> GetPayload:
         """
@@ -112,11 +162,11 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             Error: When API request fails
         """
         try:
-            uri = self.uri
+            uri = self._uri
             if id:
                 uri = f"{uri}/{id}"
             
-            return await self.api_client.get(uri, params)
+            return await self._api_client.get(uri, params)
         except Exception as error:
             raise self._handle_error(error)
     
@@ -161,13 +211,13 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             Error: When API request fails or validation fails
         """
         try:
-            uri = self.uri
+            uri = self._uri
             
             if params:
                 query_string = urllib.parse.urlencode(params)
                 uri += f"?{query_string}"
             
-            return await self.api_client.post(uri, entity)
+            return await self._api_client.post(uri, entity)
         except Exception as error:
             raise self._handle_error(error)
     
@@ -212,13 +262,13 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             Error: When API request fails, entity not found, or validation fails
         """
         try:
-            uri = f"{self.uri}/{id}"
+            uri = f"{self._uri}/{id}"
             
             if params:
                 query_string = urllib.parse.urlencode(params)
                 uri += f"?{query_string}"
             
-            return await self.api_client.put(uri, entity)
+            return await self._api_client.put(uri, entity)
         except Exception as error:
             raise self._handle_error(error)
     
@@ -251,13 +301,13 @@ class BaseFunctions(ABC, Generic[T, GetPayload, CreatePayload]):
             Error: When API request fails, entity not found, or deletion is not allowed
         """
         try:
-            uri = f"{self.uri}/{id}"
+            uri = f"{self._uri}/{id}"
             
             if params:
                 query_string = urllib.parse.urlencode(params)
                 uri += f"?{query_string}"
             
-            await self.api_client.delete(uri, params)
+            await self._api_client.delete(uri, params)
         except Exception as error:
             raise self._handle_error(error)
     

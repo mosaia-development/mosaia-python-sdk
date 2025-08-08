@@ -7,7 +7,7 @@ capabilities that are inherited by all specific model implementations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, TypeVar, Generic
+from typing import Any, Dict, Optional, TypeVar, Generic, Union
 import json
 
 from ..config import ConfigurationManager
@@ -466,3 +466,82 @@ class BaseModel(ABC, Generic[T]):
             return Exception(str(error))
         
         return Exception('Unknown error occurred')
+    
+    def __str__(self) -> str:
+        """
+        String representation of the model.
+        
+        Returns a human-readable string representation of the model,
+        typically including the model type and ID if available.
+        
+        Returns:
+            String representation of the model
+            
+        Examples:
+            >>> user = User({'id': '123', 'email': 'john@example.com'})
+            >>> print(user)  # User(id=123, email=john@example.com)
+        """
+        model_name = self.__class__.__name__
+        if self.has_id():
+            return f"{model_name}(id={self.get_id()})"
+        return f"{model_name}()"
+    
+    def __repr__(self) -> str:
+        """
+        Detailed string representation of the model.
+        
+        Returns a detailed string representation useful for debugging,
+        including all model data.
+        
+        Returns:
+            Detailed string representation of the model
+            
+        Examples:
+            >>> user = User({'id': '123', 'email': 'john@example.com'})
+            >>> repr(user)  # User({'id': '123', 'email': 'john@example.com'})
+        """
+        model_name = self.__class__.__name__
+        return f"{model_name}({self.data})"
+    
+    def __eq__(self, other: Any) -> bool:
+        """
+        Check if this model equals another model.
+        
+        Two models are considered equal if they have the same type and ID.
+        
+        Args:
+            other: Another model to compare with
+            
+        Returns:
+            True if models are equal, false otherwise
+            
+        Examples:
+            >>> user1 = User({'id': '123', 'email': 'john@example.com'})
+            >>> user2 = User({'id': '123', 'email': 'jane@example.com'})
+            >>> user1 == user2  # True (same ID)
+        """
+        if not isinstance(other, self.__class__):
+            return False
+        
+        if not self.has_id() or not other.has_id():
+            return False
+        
+        return self.get_id() == other.get_id()
+    
+    def __hash__(self) -> int:
+        """
+        Get hash value for the model.
+        
+        Returns a hash value based on the model type and ID.
+        This allows models to be used as dictionary keys or in sets.
+        
+        Returns:
+            Hash value for the model
+            
+        Examples:
+            >>> user = User({'id': '123', 'email': 'john@example.com'})
+            >>> hash(user)  # Hash value based on type and ID
+        """
+        if self.has_id():
+            return hash((self.__class__, self.get_id()))
+        return hash(self.__class__)

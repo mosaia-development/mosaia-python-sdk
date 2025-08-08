@@ -304,7 +304,10 @@ class APIClient:
         # Update client config in case it changed
         await self._update_client_config()
         
-        url = urljoin(self.base_url, path)
+        # Construct the full URL with version
+        if path.startswith('/'):
+            path = path[1:]  # Remove leading slash
+        url = f"{self.base_url}/{path}"
         
         if params:
             query_string = self._build_query_string(params)
@@ -312,6 +315,7 @@ class APIClient:
                 url += query_string
         
         request_options = {
+            'url': url,
             'method': method.upper(),
             'headers': self.headers,
             'timeout': aiohttp.ClientTimeout(total=30)
@@ -330,10 +334,11 @@ class APIClient:
             if data:
                 logger.info(f"📦 Request Body: {data}")
         
+        # Create session if it doesn't exist or is closed
+        if not self._session or self._session.closed:
+            self._session = aiohttp.ClientSession()
+        
         try:
-            if not self._session:
-                self._session = aiohttp.ClientSession()
-            
             async with self._session.request(**request_options) as response:
                 # Log response if verbose mode is enabled
                 if self.config and getattr(self.config, 'verbose', False):
@@ -491,9 +496,9 @@ class APIClient:
     
     async def close(self) -> None:
         """Close the aiohttp session."""
-        if self._session:
+        if self._session and not self._session.closed:
             await self._session.close()
-            self._session = None
+        self._session = None
     
     def __enter__(self):
         """Context manager entry."""

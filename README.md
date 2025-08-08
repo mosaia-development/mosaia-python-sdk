@@ -60,6 +60,91 @@ new_app = await apps.create({
 })
 ```
 
+## Sandbox Testing
+
+The SDK includes a sandbox environment for testing and experimentation, similar to the Node.js `sandbox.ts` file.
+
+### Quick Setup
+
+1. **Install the SDK in development mode**:
+   ```bash
+   pip install -e .
+   ```
+
+2. **Set up environment variables** (choose one option):
+
+   **Option 1: Using .env file (recommended)**
+   ```bash
+   # Install python-dotenv
+   pip install python-dotenv
+   
+   # Create .env file in project root
+   echo "API_URL=https://api.mosaia.ai
+   CLIENT_ID=your-client-id
+   USER_EMAIL=user@example.com
+   USER_PASSWORD=your-password" > .env
+   ```
+
+   **Option 2: Set environment variables manually**
+   ```bash
+   export API_URL="https://api.mosaia.ai"
+   export CLIENT_ID="your-client-id"
+   export USER_EMAIL="user@example.com"
+   export USER_PASSWORD="your-password"
+   ```
+
+3. **Run the sandbox**:
+   ```bash
+   python sandbox.py
+   ```
+
+### Sandbox Features
+
+The sandbox tests the following functionality:
+- ✅ **Authentication** - Email/password authentication
+- ✅ **Agents** - Agent listing and chat completions
+- ✅ **Users** - User session and user-related operations
+- ✅ **Organizations** - Organization listing and details
+- ✅ **Tools** - Tool listing and details
+
+### Example Output
+
+```
+🧪 Mosaia Python SDK Sandbox
+========================================
+🚀 Initializing Mosaia SDK...
+   Attempting to sign in...
+✅ Authentication successful!
+   Session user: John Doe
+   Session org: My Organization
+
+🔍 Testing agents functionality...
+   Found 3 agents
+   First agent: Cafe Assistant
+   Description: AI assistant for cafe operations
+   Testing chat completion...
+   Agent response: Hello! I'm the Cafe Assistant, an AI designed to help with cafe operations...
+
+👥 Testing users functionality...
+   Current user: John Doe (john@example.com)
+   User agents: 2 found
+   User organizations: 1 found
+
+🏢 Testing organizations functionality...
+   Found 1 organizations
+   First organization: My Organization
+   Description: Main organization for development
+
+🛠️ Testing tools functionality...
+   Found 5 tools
+   First tool: Weather Tool
+   Description: Get current weather information
+
+✅ Sandbox tests completed successfully!
+```
+
+For more information, see [SANDBOX_README.md](SANDBOX_README.md).
+
 ## Authentication
 
 ### API Key Authentication

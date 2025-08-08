@@ -82,7 +82,7 @@ class TestModels:
     
     def test_response_types(self):
         """Test response type creation."""
-        from mosaia import APIResponse, BatchAPIResponse, ErrorResponse
+        from mosaia import APIResponse, BatchAPIResponse, ErrorResponse, PagingInterface
         
         # Test APIResponse
         api_response = APIResponse(
@@ -95,13 +95,13 @@ class TestModels:
         assert api_response.error is None
         
         # Test BatchAPIResponse
+        paging = PagingInterface(total=2, limit=10, offset=0)
         batch_response = BatchAPIResponse(
             data=[{'id': '1'}, {'id': '2'}],
-            meta={'total': 2},
-            error=None
+            paging=paging
         )
         assert len(batch_response.data) == 2
-        assert batch_response.meta['total'] == 2
+        assert batch_response.paging.total == 2
         
         # Test ErrorResponse
         error_response = ErrorResponse(

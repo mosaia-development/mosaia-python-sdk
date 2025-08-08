@@ -2,6 +2,34 @@
 Mosaia Python SDK
 
 A comprehensive Python SDK for the Mosaia AI platform.
+
+This module provides the primary interface for interacting with the Mosaia API.
+It exports the main MosaiaClient class, all collection classes for API operations,
+model classes for data structures, authentication utilities, and configuration
+management tools.
+
+The SDK supports both API key and OAuth2 authentication methods, and provides
+comprehensive access to all Mosaia platform features including user management,
+organization management, AI agents, tools, applications, and more.
+
+Examples:
+    >>> from mosaia import MosaiaClient
+    
+    # Create a new Mosaia SDK instance
+    >>> mosaia = MosaiaClient({
+    ...     'api_key': 'your-api-key',
+    ...     'api_url': 'https://api.mosaia.ai',
+    ...     'version': '1'
+    ... })
+    
+    # Get all users
+    >>> users = await mosaia.users.get()
+    
+    # Create an OAuth instance
+    >>> oauth = mosaia.oauth({
+    ...     'redirect_uri': 'https://your-app.com/callback',
+    ...     'scopes': ['read', 'write']
+    ... })
 """
 
 __version__ = "1.0.0"
@@ -9,7 +37,7 @@ __author__ = "Mosaia Team"
 __email__ = "support@mosaia.ai"
 
 # Import main components
-from .config import ConfigurationManager
+from .config import ConfigurationManager, DEFAULT_CONFIG
 from .api_client import APIClient
 from .base_api import BaseAPI
 from .types import (
@@ -24,7 +52,15 @@ from .types import (
     BatchAPIResponse,
     ErrorResponse,
     AuthType,
-    GrantType
+    GrantType,
+    SessionInterface,
+    PagingInterface,
+    OAuthConfig,
+    OAuthTokenResponse,
+    OAuthErrorResponse,
+    ChatMessage,
+    ChatCompletionRequest,
+    ChatCompletionResponse
 )
 
 # Import utils
@@ -68,10 +104,34 @@ from .models import (
     Model
 )
 
+# Import collections
+from .collections import (
+    BaseCollection,
+    Agents,
+    Apps,
+    Users,
+    Organizations,
+    OrgUsers,
+    Tools,
+    Clients,
+    Models,
+    AppBots,
+    AgentGroups
+)
+
+# Import main client class
+from .client import MosaiaClient
+
 __all__ = [
+    # Main client
+    "MosaiaClient",
+    # Configuration
     "ConfigurationManager",
+    "DEFAULT_CONFIG",
+    # API components
     "APIClient", 
     "BaseAPI",
+    # Types
     "MosaiaConfig",
     "UserInterface",
     "OrganizationInterface", 
@@ -84,6 +144,14 @@ __all__ = [
     "ErrorResponse",
     "AuthType",
     "GrantType",
+    "SessionInterface",
+    "PagingInterface",
+    "OAuthConfig",
+    "OAuthTokenResponse",
+    "OAuthErrorResponse",
+    "ChatMessage",
+    "ChatCompletionRequest",
+    "ChatCompletionResponse",
     # Utils
     "is_valid_object_id",
     "parse_error", 
@@ -112,5 +180,20 @@ __all__ = [
     "AgentGroup",
     "Tool",
     "Client",
-    "Model"
+    "Model",
+    # Collections
+    "BaseCollection",
+    "Agents",
+    "Apps",
+    "Users",
+    "Organizations",
+    "OrgUsers",
+    "Tools",
+    "Clients",
+    "Models",
+    "AppBots",
+    "AgentGroups"
 ]
+
+# Default export for single primary class pattern
+__default__ = MosaiaClient

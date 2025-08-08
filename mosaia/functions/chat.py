@@ -78,4 +78,4 @@ class Chat(BaseFunctions[Dict[str, Any], Any, Dict[str, Any]]):
             ...     ]
             ... })
         """
-        return Completions(self.uri)
+        return Completions(self._uri)

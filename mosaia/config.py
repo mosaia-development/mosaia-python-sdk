@@ -6,7 +6,7 @@ the ConfigurationManager singleton and default configuration values.
 """
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from dataclasses import dataclass, field
 
 from .types import MosaiaConfig, SessionInterface
@@ -73,12 +73,12 @@ class ConfigurationManager:
             cls._instance = ConfigurationManager()
         return cls._instance
     
-    def initialize(self, config_data: Dict[str, Any]) -> None:
+    def initialize(self, config_data: Union[Dict[str, Any], MosaiaConfig]) -> None:
         """
         Initialize the configuration with the provided data.
         
         Args:
-            config_data: Configuration data dictionary
+            config_data: Configuration data dictionary or MosaiaConfig object
             
         Examples:
             >>> config_manager = ConfigurationManager.get_instance()
@@ -88,17 +88,30 @@ class ConfigurationManager:
             ...     'version': '1',
             ...     'verbose': True
             ... })
+            
+            >>> # Or with MosaiaConfig object
+            >>> config = MosaiaConfig(api_key='your-api-key', api_url='https://api.mosaia.ai')
+            >>> config_manager.initialize(config)
         """
-        # Convert dict to MosaiaConfig
+        # Handle MosaiaConfig object
+        if isinstance(config_data, MosaiaConfig):
+            self._config = config_data
+            return
+        
+        # Handle dictionary
         session_data = config_data.get('session')
         session = None
-        if session_data:
+        if session_data is not None:
             session = SessionInterface(**session_data)
+        
+        # Merge with defaults
+        api_url = config_data.get('api_url') or DEFAULT_CONFIG['API']['BASE_URL']
+        version = config_data.get('version') or DEFAULT_CONFIG['API']['VERSION']
         
         self._config = MosaiaConfig(
             api_key=config_data.get('api_key'),
-            api_url=config_data.get('api_url'),
-            version=config_data.get('version'),
+            api_url=api_url,
+            version=version,
             client_id=config_data.get('client_id'),
             client_secret=config_data.get('client_secret'),
             verbose=config_data.get('verbose', False),
@@ -124,8 +137,8 @@ class ConfigurationManager:
             'verbose': os.getenv('MOSAIA_VERBOSE', 'false').lower() == 'true'
         }
         
-        # Remove None values
-        config_data = {k: v for k, v in config_data.items() if v is not None}
+        # Remove None values but keep empty strings for api_url and version
+        config_data = {k: v for k, v in config_data.items() if v is not None or k in ['api_url', 'version']}
         
         self.initialize(config_data)
     

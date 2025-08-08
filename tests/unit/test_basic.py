@@ -140,4 +140,33 @@ class TestAPIClient:
         """Test that headers contain authorization."""
         client = APIClient()
         assert 'Authorization' in client.headers
-        assert 'Content-Type' in client.headers 
+        assert 'Content-Type' in client.headers
+    
+    def test_base_url_construction(self):
+        """Test that base URL is constructed correctly with version."""
+        config = MosaiaConfig(
+            api_key='test-api-key',
+            api_url='https://api.mosaia.ai',
+            version='1'
+        )
+        client = APIClient(config)
+        assert client.base_url == 'https://api.mosaia.ai/v1'
+    
+    def test_base_url_with_different_version(self):
+        """Test base URL construction with different version."""
+        config = MosaiaConfig(
+            api_key='test-api-key',
+            api_url='https://api.mosaia.ai',
+            version='2'
+        )
+        client = APIClient(config)
+        assert client.base_url == 'https://api.mosaia.ai/v2'
+    
+    def test_base_url_with_default_version(self):
+        """Test base URL construction with default version."""
+        config = MosaiaConfig(
+            api_key='test-api-key',
+            api_url='https://api.mosaia.ai'
+        )
+        client = APIClient(config)
+        assert client.base_url == 'https://api.mosaia.ai/v1' 
