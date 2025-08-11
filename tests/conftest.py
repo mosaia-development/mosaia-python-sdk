@@ -5,9 +5,10 @@ This module provides common test fixtures and configuration that can be
 used across all test modules.
 """
 
-import pytest
 import asyncio
-from typing import Dict, Any
+from typing import Any, Dict
+
+import pytest
 
 from mosaia import ConfigurationManager
 
@@ -33,12 +34,12 @@ def config_manager():
 def test_config():
     """Provide test configuration data."""
     return {
-        'api_key': 'test-api-key',
-        'api_url': 'https://test-api.mosaia.ai',
-        'version': '1',
-        'client_id': 'test-client-id',
-        'client_secret': 'test-client-secret',
-        'verbose': True
+        "api_key": "test-api-key",
+        "api_url": "https://test-api.mosaia.ai",
+        "version": "1",
+        "client_id": "test-client-id",
+        "client_secret": "test-client-secret",
+        "verbose": True,
     }
 
 
@@ -53,13 +54,13 @@ def initialized_config_manager(config_manager, test_config):
 def sample_user_data():
     """Provide sample user data for testing."""
     return {
-        'id': 'user-123',
-        'email': 'test@example.com',
-        'first_name': 'Test',
-        'last_name': 'User',
-        'username': 'testuser',
-        'name': 'Test User',
-        'description': 'A test user'
+        "id": "user-123",
+        "email": "test@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "username": "testuser",
+        "name": "Test User",
+        "description": "A test user",
     }
 
 
@@ -67,9 +68,9 @@ def sample_user_data():
 def sample_organization_data():
     """Provide sample organization data for testing."""
     return {
-        'id': 'org-456',
-        'name': 'Test Organization',
-        'short_description': 'A test organization'
+        "id": "org-456",
+        "name": "Test Organization",
+        "short_description": "A test organization",
     }
 
 
@@ -77,12 +78,12 @@ def sample_organization_data():
 def sample_agent_data():
     """Provide sample agent data for testing."""
     return {
-        'id': 'agent-789',
-        'name': 'Test Agent',
-        'short_description': 'A test AI agent',
-        'model': 'gpt-4',
-        'temperature': 0.7,
-        'system_prompt': 'You are a helpful test agent.'
+        "id": "agent-789",
+        "name": "Test Agent",
+        "short_description": "A test AI agent",
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "system_prompt": "You are a helpful test agent.",
     }
 
 
@@ -90,10 +91,10 @@ def sample_agent_data():
 def sample_app_data():
     """Provide sample app data for testing."""
     return {
-        'id': 'app-101',
-        'name': 'Test App',
-        'short_description': 'A test application',
-        'external_app_url': 'https://test-app.example.com'
+        "id": "app-101",
+        "name": "Test App",
+        "short_description": "A test application",
+        "external_app_url": "https://test-app.example.com",
     }
 
 
@@ -101,11 +102,11 @@ def sample_app_data():
 def sample_tool_data():
     """Provide sample tool data for testing."""
     return {
-        'id': 'tool-202',
-        'name': 'Test Tool',
-        'friendly_name': 'Test Tool',
-        'short_description': 'A test tool',
-        'tool_schema': '{"type": "object", "properties": {"test": {"type": "string"}}}'
+        "id": "tool-202",
+        "name": "Test Tool",
+        "friendly_name": "Test Tool",
+        "short_description": "A test tool",
+        "tool_schema": '{"type": "object", "properties": {"test": {"type": "string"}}}',
     }
 
 
@@ -113,9 +114,9 @@ def sample_tool_data():
 def valid_object_ids():
     """Provide valid MongoDB ObjectIDs for testing."""
     return [
-        '507f1f77bcf86cd799439011',
-        '507f1f77bcf86cd799439012',
-        '507f1f77bcf86cd799439013'
+        "507f1f77bcf86cd799439011",
+        "507f1f77bcf86cd799439012",
+        "507f1f77bcf86cd799439013",
     ]
 
 
@@ -123,13 +124,13 @@ def valid_object_ids():
 def invalid_object_ids():
     """Provide invalid ObjectIDs for testing."""
     return [
-        'invalid-id',
-        '123',
-        '507f1f77bcf86cd79943901',  # 23 chars
-        '507f1f77bcf86cd7994390111',  # 25 chars
-        '507f1f77bcf86cd79943901g',  # invalid char
-        '',
-        None
+        "invalid-id",
+        "123",
+        "507f1f77bcf86cd79943901",  # 23 chars
+        "507f1f77bcf86cd7994390111",  # 25 chars
+        "507f1f77bcf86cd79943901g",  # invalid char
+        "",
+        None,
     ]
 
 
@@ -137,14 +138,14 @@ def invalid_object_ids():
 def sample_query_params():
     """Provide sample query parameters for testing."""
     return {
-        'limit': 10,
-        'offset': 0,
-        'search': 'test',
-        'active': True,
-        'tags': ['ai', 'automation', 'test'],
-        'categories': ['featured', 'popular'],
-        'sort_by': 'created_at',
-        'sort_order': 'desc'
+        "limit": 10,
+        "offset": 0,
+        "search": "test",
+        "active": True,
+        "tags": ["ai", "automation", "test"],
+        "categories": ["featured", "popular"],
+        "sort_by": "created_at",
+        "sort_order": "desc",
     }
 
 
@@ -152,11 +153,8 @@ def sample_query_params():
 def sample_error_data():
     """Provide sample error data for testing."""
     return {
-        'message': 'Test error message',
-        'code': 'TEST_ERROR',
-        'status': 400,
-        'more_info': {
-            'details': 'Additional error details',
-            'field': 'test_field'
-        }
+        "message": "Test error message",
+        "code": "TEST_ERROR",
+        "status": 400,
+        "more_info": {"details": "Additional error details", "field": "test_field"},
     }

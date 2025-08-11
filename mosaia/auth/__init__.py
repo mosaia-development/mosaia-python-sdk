@@ -8,7 +8,4 @@ client credentials authentication, OAuth2 flows, and token management.
 from .auth import MosaiaAuth
 from .oauth import OAuth
 
-__all__ = [
-    "MosaiaAuth",
-    "OAuth"
-]
+__all__ = ["MosaiaAuth", "OAuth"]

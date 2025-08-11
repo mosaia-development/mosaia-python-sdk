@@ -9,8 +9,4 @@ from .base_functions import BaseFunctions
 from .chat import Chat
 from .completions import Completions
 
-__all__ = [
-    "BaseFunctions",
-    "Chat", 
-    "Completions"
-]
+__all__ = ["BaseFunctions", "Chat", "Completions"]

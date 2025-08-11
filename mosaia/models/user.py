@@ -27,7 +27,7 @@ Available resources:
 - Organization access
 """
 
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 from .base import BaseModel
 
@@ -35,32 +35,32 @@ from .base import BaseModel
 class User(BaseModel[Dict[str, Any]]):
     """
     User class for managing platform users.
-    
+
     This class represents a user account in the Mosaia platform. Users are
     the primary actors who can create and manage AI resources, interact with
     agents, and collaborate within organizations.
-    
+
     Features:
     - Profile management
     - Resource ownership
     - Organization membership
     - Access control
     - Resource management
-    
+
     Users can manage:
     - AI agents and groups
     - Applications
     - Models and tools
     - Organization memberships
     - OAuth clients
-    
+
     Available resources:
     - Personal agents
     - Custom applications
     - Model configurations
     - Integration tools
     - Organization access
-    
+
     Examples:
         Basic user setup:
         >>> # Create user profile
@@ -74,13 +74,13 @@ class User(BaseModel[Dict[str, Any]]):
         ...         'location': 'San Francisco'
         ...     }
         ... })
-        >>> 
+        >>>
         >>> await user.save()
-        >>> 
+        >>>
         >>> # Add profile image
         >>> with open('avatar.jpg', 'rb') as f:
         ...     await user.upload_profile_image(f)
-        
+
         Resource management:
         >>> # Access user's resources
         >>> agents, apps, models = await asyncio.gather(
@@ -88,12 +88,12 @@ class User(BaseModel[Dict[str, Any]]):
         ...     user.apps.get(),
         ...     user.models.get()
         ... )
-        >>> 
+        >>>
         >>> print('User Resources:')
         >>> print(f'- {len(agents)} AI agents')
         >>> print(f'- {len(apps)} applications')
         >>> print(f'- {len(models)} models')
-        >>> 
+        >>>
         >>> # Create new agent
         >>> agent = await user.agents.create({
         ...     'name': 'Personal Assistant',
@@ -101,27 +101,27 @@ class User(BaseModel[Dict[str, Any]]):
         ...     'temperature': 0.7,
         ...     'system_prompt': 'You are a helpful assistant.'
         ... })
-        >>> 
+        >>>
         >>> # Create application
         >>> app = await user.apps.create({
         ...     'name': 'Task Manager',
         ...     'short_description': 'AI-powered task management'
         ... })
-        >>> 
+        >>>
         >>> # Check organization memberships
         >>> orgs = await user.orgs.get()
         >>> for org in orgs:
         ...     print(f"{org['org']['name']}: {org['permission']}")
     """
-    
+
     def __init__(self, data: Dict[str, Any], uri: Optional[str] = None):
         """
         Create a new user profile.
-        
+
         Initializes a user account with the provided profile information.
         Users are the primary actors in the platform who can create and
         manage AI resources.
-        
+
         Args:
             data: Profile data including:
                   - username: Unique identifier
@@ -130,7 +130,7 @@ class User(BaseModel[Dict[str, Any]]):
                   - description: Bio or description
                   - metadata: Additional profile data
             uri: Optional custom URI path for the user endpoint. Defaults to '/user'
-            
+
         Examples:
             Basic profile:
             >>> user = User({
@@ -139,7 +139,7 @@ class User(BaseModel[Dict[str, Any]]):
             ...     'email': 'jane@example.com',
             ...     'description': 'AI Developer'
             ... })
-            
+
             Detailed profile:
             >>> user = User({
             ...     'username': 'jsmith',
@@ -160,27 +160,27 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... }, '/enterprise/user')
         """
-        super().__init__(data, uri or '/user')
-    
+        super().__init__(data, uri or "/user")
+
     @property
     def agents(self):
         """
         Get the user's AI agents.
-        
+
         This property provides access to the user's AI agents through the
         Agents collection. It enables management of personal agents and
         their configurations.
-        
+
         Returns:
             Agents collection for managing AI agents
-            
+
         Examples:
             List agents:
             >>> agents = await user.agents.get()
             >>> for agent in agents:
             ...     print(f"Agent: {agent.name}")
             ...     print(f"Model: {agent.model}")
-            
+
             Create agent:
             >>> agent = await user.agents.create({
             ...     'name': 'Code Assistant',
@@ -195,27 +195,28 @@ class User(BaseModel[Dict[str, Any]]):
         """
         # Lazy import to avoid circular dependencies at import time
         from mosaia.collections import Agents
+
         return Agents(self.get_uri())
-    
+
     @property
     def apps(self):
         """
         Get the user's applications.
-        
+
         This property provides access to the user's applications through the
         Apps collection. It enables management of personal applications and
         their configurations.
-        
+
         Returns:
             Apps collection for managing applications
-            
+
         Examples:
             List applications:
             >>> apps = await user.apps.get()
             >>> for app in apps:
             ...     print(f"App: {app.name}")
             ...     print(f"URL: {app.external_app_url}")
-            
+
             Create application:
             >>> app = await user.apps.create({
             ...     'name': 'AI Dashboard',
@@ -229,27 +230,28 @@ class User(BaseModel[Dict[str, Any]]):
             ... })
         """
         from mosaia.collections import Apps
+
         return Apps(self.get_uri())
-    
+
     @property
     def clients(self):
         """
         Get the user's OAuth clients.
-        
+
         This property provides access to the user's OAuth clients through the
         Clients collection. It enables management of authentication and
         authorization for external applications.
-        
+
         Returns:
             Clients collection for managing OAuth clients
-            
+
         Examples:
             List clients:
             >>> clients = await user.clients.get()
             >>> for client in clients:
             ...     print(f"Client: {client.name}")
             ...     print(f"ID: {client.client_id}")
-            
+
             Create OAuth client:
             >>> client = await user.clients.create({
             ...     'name': 'Mobile App',
@@ -261,33 +263,34 @@ class User(BaseModel[Dict[str, Any]]):
             ...         'environment': 'production'
             ...     }
             ... })
-            >>> 
+            >>>
             >>> print('Client credentials:')
             >>> print(f"ID: {client.client_id}")
             >>> print(f"Secret: {client.client_secret}")
         """
         from mosaia.collections import Clients
+
         return Clients(self.get_uri())
-    
+
     @property
     def groups(self):
         """
         Get the user's agent groups.
-        
+
         This property provides access to the user's agent groups through the
         AgentGroups collection. It enables management of collaborative
         agent teams and specialized configurations.
-        
+
         Returns:
             AgentGroups collection for managing agent groups
-            
+
         Examples:
             List groups:
             >>> groups = await user.groups.get()
             >>> for group in groups:
             ...     print(f"Group: {group.name}")
             ...     print(f"Agents: {len(group.agents)}")
-            
+
             Create specialized team:
             >>> support_team = await user.groups.create({
             ...     'name': 'Support Team',
@@ -305,20 +308,21 @@ class User(BaseModel[Dict[str, Any]]):
             ... })
         """
         from mosaia.collections import AgentGroups
+
         return AgentGroups(self.get_uri())
-    
+
     @property
     def models(self):
         """
         Get the user's AI models.
-        
+
         This property provides access to the user's AI models through the
         Models collection. It enables management of model configurations
         and customizations.
-        
+
         Returns:
             Models collection for managing AI models
-            
+
         Examples:
             List models:
             >>> models = await user.models.get()
@@ -326,7 +330,7 @@ class User(BaseModel[Dict[str, Any]]):
             ...     print(f"Model: {model.name}")
             ...     print(f"Provider: {model.provider}")
             ...     print(f"ID: {model.model_id}")
-            
+
             Create custom model:
             >>> model = await user.models.create({
             ...     'name': 'Enhanced GPT-4',
@@ -347,20 +351,21 @@ class User(BaseModel[Dict[str, Any]]):
             ... })
         """
         from mosaia.collections import Models
+
         return Models(self.get_uri())
-    
+
     @property
     def orgs(self):
         """
         Get the user's organization memberships.
-        
+
         This property provides access to the user's organization memberships
         through the OrgUsers collection. It enables management of team
         memberships and organization access.
-        
+
         Returns:
             OrgUsers collection for managing organization memberships
-            
+
         Examples:
             List memberships:
             >>> memberships = await user.orgs.get()
@@ -368,7 +373,7 @@ class User(BaseModel[Dict[str, Any]]):
             ...     print(f"Organization: {membership['org']['name']}")
             ...     print(f"Role: {membership['permission']}")
             ...     print(f"Active: {membership['is_active']}")
-            
+
             Manage memberships:
             >>> # Join organization
             >>> membership = await user.orgs.create({
@@ -380,30 +385,31 @@ class User(BaseModel[Dict[str, Any]]):
             ...         'start_date': '2024-01-01T00:00:00Z'
             ...     }
             ... })
-            >>> 
+            >>>
             >>> # Get authenticated session
             >>> config = await membership.session()
             >>> mosaia = Mosaia(config)
-            >>> 
+            >>>
             >>> # Access organization resources
             >>> org_agents = await mosaia.agents.get()
             >>> print(f"Organization has {len(org_agents)} agents")
         """
         from mosaia.collections import OrgUsers
-        return OrgUsers(uri=self.get_uri(), endpoint='/org')
-    
+
+        return OrgUsers(uri=self.get_uri(), endpoint="/org")
+
     @property
     def tools(self):
         """
         Get the user's integration tools.
-        
+
         This property provides access to the user's integration tools through
         the Tools collection. It enables management of external service
         integrations and custom tools.
-        
+
         Returns:
             Tools collection for managing integrations
-            
+
         Examples:
             List tools:
             >>> tools = await user.tools.get()
@@ -411,7 +417,7 @@ class User(BaseModel[Dict[str, Any]]):
             ...     print(f"Tool: {tool.name}")
             ...     print(f"Type: {tool.type}")
             ...     print(f"Schema: {tool.tool_schema}")
-            
+
             Create integration:
             >>> tool = await user.tools.create({
             ...     'name': 'jira-integration',
@@ -459,51 +465,52 @@ class User(BaseModel[Dict[str, Any]]):
             ... })
         """
         from mosaia.collections import Tools
+
         return Tools(self.get_uri())
-    
-    async def upload_profile_image(self, file) -> 'User':
+
+    async def upload_profile_image(self, file) -> "User":
         """
         Upload a profile image.
-        
+
         This method uploads and sets a profile image for the user. The image
         will be used to represent the user across the platform in various
         UI elements.
-        
+
         Args:
             file: Image file to upload (supports common formats)
-            
+
         Returns:
             Updated user instance
-            
+
         Raises:
             Error: When upload fails
             Error: When file format is invalid
             Error: When network errors occur
-            
+
         Examples:
             Basic upload:
             >>> with open('avatar.jpg', 'rb') as f:
             ...     await user.upload_profile_image(f)
             ...     print('Profile image updated successfully')
-            
+
             Upload with validation:
             >>> async def update_profile_image(user, file_path):
             ...     try:
             ...         # Validate file
             ...         if not file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
             ...             raise ValueError('Invalid file type')
-            ...         
+            ...
             ...         file_size = os.path.getsize(file_path)
             ...         if file_size > 5 * 1024 * 1024:
             ...             raise ValueError('File too large (max 5MB)')
-            ...         
+            ...
             ...         # Upload and update
             ...         with open(file_path, 'rb') as f:
             ...             updated = await user.upload_profile_image(f)
-            ...         
+            ...
             ...         print('Profile updated successfully')
             ...         print(f"Size: {file_size} bytes")
-            ...         
+            ...
             ...         return updated
             ...     except Exception as error:
             ...         print(f'Profile update failed: {error}')
@@ -514,7 +521,7 @@ class User(BaseModel[Dict[str, Any]]):
             response = await self.api_client.post_multipart(path, file)
 
             if isinstance(response, dict):
-                data = response.get('data', response)
+                data = response.get("data", response)
                 if isinstance(data, dict):
                     self.update(data)
             return self

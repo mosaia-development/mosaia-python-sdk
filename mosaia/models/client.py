@@ -33,18 +33,18 @@ from .base import BaseModel
 class Client(BaseModel[Dict[str, Any]]):
     """
     Client class for managing OAuth client applications.
-    
+
     This class represents an OAuth client application that can authenticate with
     the Mosaia API through various OAuth flows. It manages client credentials,
     redirect URIs, and scopes for secure API access.
-    
+
     Features:
     - OAuth client management
     - Secure credential handling
     - Redirect URI configuration
     - Scope management
     - Flow configuration
-    
+
     Examples:
         Basic client setup:
         >>> # Create an OAuth client for web application
@@ -55,9 +55,9 @@ class Client(BaseModel[Dict[str, Any]]):
         ...     'redirect_uris': ['https://app.example.com/oauth/callback'],
         ...     'scopes': ['read:users', 'write:data']
         ... })
-        >>> 
+        >>>
         >>> await web_client.save()
-        
+
         Service account setup:
         >>> # Create a service account client
         >>> service_client = Client({
@@ -71,20 +71,20 @@ class Client(BaseModel[Dict[str, Any]]):
         ...         'environment': 'production'
         ...     }
         ... })
-        >>> 
+        >>>
         >>> if service_client.is_active():
         ...     print('Service client ready')
         ...     print('Available scopes:', service_client.scopes)
     """
-    
+
     def __init__(self, data: Dict[str, Any], uri: Optional[str] = None):
         """
         Create a new OAuth client instance.
-        
+
         Initializes an OAuth client application with the provided configuration.
         The client manages authentication and authorization for accessing the
         Mosaia API securely.
-        
+
         Args:
             data: Configuration data including:
                   - name: Client application name
@@ -95,7 +95,7 @@ class Client(BaseModel[Dict[str, Any]]):
                   - grant_types: Supported OAuth grant types
                   - metadata: Custom metadata object
             uri: Optional custom URI path for the client endpoint. Defaults to '/client'
-            
+
         Examples:
             Web application client:
             >>> web_client = Client({
@@ -108,7 +108,7 @@ class Client(BaseModel[Dict[str, Any]]):
             ...     ],
             ...     'scopes': ['read:users', 'write:data']
             ... })
-            
+
             Machine-to-machine client:
             >>> service_client = Client({
             ...     'name': 'API Service',
@@ -122,4 +122,4 @@ class Client(BaseModel[Dict[str, Any]]):
             ...     }
             ... }, '/service/client')
         """
-        super().__init__(data, uri or '/client')
+        super().__init__(data, uri or "/client")

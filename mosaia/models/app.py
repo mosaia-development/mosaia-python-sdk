@@ -29,18 +29,18 @@ from .base import BaseModel
 class App(BaseModel[Dict[str, Any]]):
     """
     App class for managing AI-powered applications.
-    
+
     This class represents an application in the Mosaia platform, serving as a
     container and orchestrator for AI solutions. Apps provide the structure and
     configuration for deploying and managing AI capabilities.
-    
+
     Features:
     - Application lifecycle management
     - External integration configuration
     - Security and access control
     - Resource organization
     - Usage monitoring
-    
+
     Examples:
         Basic app setup:
         >>> # Create a new application
@@ -50,10 +50,10 @@ class App(BaseModel[Dict[str, Any]]):
         ...     'long_description': 'AI-powered support system with multiple specialized agents',
         ...     'external_app_url': 'https://support.example.com'
         ... })
-        >>> 
+        >>>
         >>> # Save the application
         >>> await support_portal.save()
-        
+
         External integration:
         >>> # Configure external system integration
         >>> app = App({
@@ -65,20 +65,20 @@ class App(BaseModel[Dict[str, Any]]):
         ...         'Authorization': 'Bearer your-token'
         ...     }
         ... })
-        >>> 
+        >>>
         >>> # Test the connection
         >>> if app.is_active():
         ...     print('Integration configured successfully')
     """
-    
+
     def __init__(self, data: Dict[str, Any], uri: Optional[str] = None):
         """
         Create a new App instance.
-        
+
         Initializes an application with the provided configuration data and optional
         URI. The application serves as a container for organizing and managing
         AI-powered solutions.
-        
+
         Args:
             data: Application configuration data including:
                   - name: Application name
@@ -88,7 +88,7 @@ class App(BaseModel[Dict[str, Any]]):
                   - external_api_key: API key for external system
                   - external_headers: Custom headers for external requests
             uri: Optional URI path for the application endpoint. Defaults to '/app'
-            
+
         Examples:
             Basic configuration:
             >>> app = App({
@@ -96,7 +96,7 @@ class App(BaseModel[Dict[str, Any]]):
             ...     'short_description': 'AI customer service portal',
             ...     'external_app_url': 'https://portal.example.com'
             ... })
-            
+
             Full configuration:
             >>> app = App({
             ...     'name': 'Enterprise Solution',
@@ -110,4 +110,4 @@ class App(BaseModel[Dict[str, Any]]):
             ...     }
             ... }, '/enterprise/app')
         """
-        super().__init__(data, uri or '/app')
+        super().__init__(data, uri or "/app")

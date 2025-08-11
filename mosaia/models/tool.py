@@ -36,33 +36,33 @@ from .base import BaseModel
 class Tool(BaseModel[Dict[str, Any]]):
     """
     Tool class for managing agent capabilities.
-    
+
     This class represents an external integration or utility that extends
     agent capabilities in the Mosaia platform. Tools enable agents to
     interact with external services, process data, and perform specialized
     tasks through well-defined interfaces.
-    
+
     Features:
     - Schema validation
     - Environment management
     - API integration
     - Data transformation
     - Error handling
-    
+
     Tools provide:
     - External service integration
     - Data processing capabilities
     - API access management
     - Input/output validation
     - Environment configuration
-    
+
     Common tool types:
     - API integrations
     - Database connectors
     - File processors
     - Data transformers
     - Service clients
-    
+
     Examples:
         Basic API tool:
         >>> # Create a weather API tool
@@ -88,9 +88,9 @@ class Tool(BaseModel[Dict[str, Any]]):
         ...     'required_environment_variables': ['WEATHER_API_KEY'],
         ...     'source_url': 'https://api.weather.com'
         ... })
-        >>> 
+        >>>
         >>> await weather_tool.save()
-        
+
         Database tool:
         >>> # Create a database query tool
         >>> db_tool = Tool({
@@ -129,20 +129,20 @@ class Tool(BaseModel[Dict[str, Any]]):
         ...         'max_connections': 10
         ...     }
         ... })
-        >>> 
+        >>>
         >>> if db_tool.is_active():
         ...     print('Database tool ready')
         ...     print('Schema:', json.loads(db_tool.tool_schema))
     """
-    
+
     def __init__(self, data: Dict[str, Any], uri: Optional[str] = None):
         """
         Create a new tool configuration.
-        
+
         Initializes a tool that extends agent capabilities through external
         integrations. Tools provide a standardized interface for agents to
         interact with external services and process data.
-        
+
         Args:
             data: Configuration data including:
                   - name: Tool identifier
@@ -153,7 +153,7 @@ class Tool(BaseModel[Dict[str, Any]]):
                   - source_url: Integration endpoint
                   - metadata: Additional tool data
             uri: Optional custom URI path for the tool endpoint. Defaults to '/tool'
-            
+
         Examples:
             Basic file processor:
             >>> file_tool = Tool({
@@ -176,7 +176,7 @@ class Tool(BaseModel[Dict[str, Any]]):
             ...         'required': ['file_path']
             ...     })
             ... })
-            
+
             API integration:
             >>> api_tool = Tool({
             ...     'name': 'api-client',
@@ -216,4 +216,4 @@ class Tool(BaseModel[Dict[str, Any]]):
             ...     }
             ... }, '/integrations/tool')
         """
-        super().__init__(data, uri or '/tool')
+        super().__init__(data, uri or "/tool")

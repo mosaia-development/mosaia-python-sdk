@@ -21,41 +21,41 @@ methods for CRUD operations and specialized functionality.
 
 Examples:
     >>> from mosaia.collections import Apps, Tools, Agents, Auth
-    
+
     # Create collection clients
     >>> apps = Apps()
     >>> tools = Tools()
     >>> agents = Agents()
     >>> auth = MosaiaAuth()
-    
+
     # Use the clients
     >>> all_apps = await apps.get()
     >>> all_tools = await tools.get()
     >>> all_agents = await agents.get()
 """
 
-from .base_collection import BaseCollection
+from .agent_groups import AgentGroups
 from .agents import Agents
+from .app_bots import AppBots
 from .apps import Apps
-from .users import Users
-from .organizations import Organizations
-from .org_users import OrgUsers
-from .tools import Tools
+from .base_collection import BaseCollection
 from .clients import Clients
 from .models import Models
-from .app_bots import AppBots
-from .agent_groups import AgentGroups
+from .org_users import OrgUsers
+from .organizations import Organizations
+from .tools import Tools
+from .users import Users
 
 __all__ = [
-    'BaseCollection',
-    'Agents',
-    'Apps',
-    'Users',
-    'Organizations',
-    'OrgUsers',
-    'Tools',
-    'Clients',
-    'Models',
-    'AppBots',
-    'AgentGroups',
+    "BaseCollection",
+    "Agents",
+    "Apps",
+    "Users",
+    "Organizations",
+    "OrgUsers",
+    "Tools",
+    "Clients",
+    "Models",
+    "AppBots",
+    "AgentGroups",
 ]

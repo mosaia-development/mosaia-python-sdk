@@ -5,19 +5,21 @@ This module contains all the type definitions, interfaces, and data structures
 used throughout the SDK.
 """
 
-from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 
 
 class AuthType(str, Enum):
     """Authentication types."""
+
     API_KEY = "api_key"
     OAUTH2 = "oauth2"
 
 
 class GrantType(str, Enum):
     """OAuth2 grant types."""
+
     AUTHORIZATION_CODE = "authorization_code"
     CLIENT_CREDENTIALS = "client_credentials"
     REFRESH_TOKEN = "refresh_token"
@@ -26,6 +28,7 @@ class GrantType(str, Enum):
 @dataclass
 class SessionInterface:
     """Session interface for authentication."""
+
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
     exp: Optional[str] = None
@@ -40,6 +43,7 @@ class SessionInterface:
 @dataclass
 class MosaiaConfig:
     """Configuration for the Mosaia SDK."""
+
     api_key: Optional[str] = None
     api_url: Optional[str] = None
     version: Optional[str] = None
@@ -52,6 +56,7 @@ class MosaiaConfig:
 @dataclass
 class UserInterface:
     """User interface."""
+
     id: Optional[str] = None
     email: Optional[str] = None
     first_name: Optional[str] = None
@@ -64,6 +69,7 @@ class UserInterface:
 @dataclass
 class OrganizationInterface:
     """Organization interface."""
+
     id: Optional[str] = None
     name: Optional[str] = None
     short_description: Optional[str] = None
@@ -72,6 +78,7 @@ class OrganizationInterface:
 @dataclass
 class AppInterface:
     """Application interface."""
+
     id: Optional[str] = None
     name: Optional[str] = None
     short_description: Optional[str] = None
@@ -81,6 +88,7 @@ class AppInterface:
 @dataclass
 class AgentInterface:
     """Agent interface."""
+
     id: Optional[str] = None
     name: Optional[str] = None
     short_description: Optional[str] = None
@@ -92,6 +100,7 @@ class AgentInterface:
 @dataclass
 class ToolInterface:
     """Tool interface."""
+
     id: Optional[str] = None
     name: Optional[str] = None
     friendly_name: Optional[str] = None
@@ -102,6 +111,7 @@ class ToolInterface:
 @dataclass
 class QueryParams:
     """Query parameters for API requests."""
+
     limit: Optional[int] = None
     offset: Optional[int] = None
     search: Optional[str] = None
@@ -112,6 +122,7 @@ class QueryParams:
 @dataclass
 class PagingInterface:
     """Pagination interface for list responses."""
+
     offset: Optional[int] = None
     limit: Optional[int] = None
     total: Optional[int] = None
@@ -122,6 +133,7 @@ class PagingInterface:
 @dataclass
 class APIResponse:
     """Standard API response."""
+
     data: Any = None
     meta: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
@@ -130,6 +142,7 @@ class APIResponse:
 @dataclass
 class BatchAPIResponse:
     """Batch API response."""
+
     data: List[Any] = field(default_factory=list)
     paging: Optional[PagingInterface] = None
 
@@ -137,6 +150,7 @@ class BatchAPIResponse:
 @dataclass
 class ErrorResponse:
     """Error response."""
+
     message: str = ""
     code: str = "UNKNOWN_ERROR"
     status: int = 400
@@ -146,6 +160,7 @@ class ErrorResponse:
 @dataclass
 class OAuthConfig:
     """OAuth configuration interface."""
+
     redirect_uri: Optional[str] = None
     app_url: Optional[str] = None
     scopes: Optional[List[str]] = None
@@ -158,6 +173,7 @@ class OAuthConfig:
 @dataclass
 class OAuthTokenResponse:
     """OAuth token response interface."""
+
     access_token: str = ""
     refresh_token: Optional[str] = None
     token_type: str = "Bearer"
@@ -170,6 +186,7 @@ class OAuthTokenResponse:
 @dataclass
 class OAuthErrorResponse:
     """OAuth error response interface."""
+
     error: str = ""
     error_description: Optional[str] = None
     error_uri: Optional[str] = None
@@ -178,6 +195,7 @@ class OAuthErrorResponse:
 @dataclass
 class ChatMessage:
     """Chat message interface."""
+
     role: Optional[str] = None  # 'system' | 'user' | 'assistant'
     content: Optional[str] = None
     refusal: Optional[str] = None
@@ -187,6 +205,7 @@ class ChatMessage:
 @dataclass
 class ChatCompletionRequest:
     """Chat completion request interface."""
+
     model: Optional[str] = None
     messages: List[ChatMessage] = field(default_factory=list)
     max_tokens: Optional[int] = None
@@ -199,6 +218,7 @@ class ChatCompletionRequest:
 @dataclass
 class ChatCompletionResponse:
     """Chat completion response interface."""
+
     id: str = ""
     object: str = ""
     created: int = 0
