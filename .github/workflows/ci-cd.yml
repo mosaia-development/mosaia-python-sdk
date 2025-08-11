@@ -1,11 +1,13 @@
 name: CI/CD Pipeline
 
+# Required GitHub Secret:
+# PYPI_API_TOKEN - Your PyPI API token for package deployment
+# Get it from: https://pypi.org/manage/account/token/
+# Add it in: GitHub Repo → Settings → Secrets and variables → Actions
+
 on:
   push:
-    branches: [ main, develop ]
     tags: [ 'v*' ]  # Run workflow on tags starting with 'v'
-  pull_request:
-    branches: [ main, develop ]
   release:
     types: [ published ]
 
@@ -61,7 +63,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
     
     steps:
     - uses: actions/checkout@v4
@@ -80,6 +82,29 @@ jobs:
         else
           echo "Building from branch"
         fi
+
+    - name: Update package version
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        VERSION=${{ env.version }}
+        echo "Updating package files to version $VERSION"
+        
+        # Update pyproject.toml
+        sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+        
+        # Update setup.py
+        sed -i "s/^    version=\".*\"/    version=\"$VERSION\"/" setup.py
+        
+        # Update mosaia/__init__.py
+        sed -i "s/^__version__ = \".*\"/__version__ = \"$VERSION\"/" mosaia/__init__.py
+        
+        echo "Version updated to $VERSION in all package files"
+        
+        # Verify the updates
+        echo "Verifying version updates:"
+        echo "pyproject.toml: $(grep '^version = ' pyproject.toml)"
+        echo "setup.py: $(grep '^    version=' setup.py)"
+        echo "mosaia/__init__.py: $(grep '^__version__ = ' mosaia/__init__.py)"
 
     - name: Install build dependencies
       run: |
@@ -106,7 +131,9 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
+        echo "Deploying to PyPI..."
         twine upload dist/*
+        echo "Successfully deployed to PyPI!"
 
   # deploy-docs: Disabled for initial release - documentation will be added in future versions
   #   needs: build
