@@ -8,8 +8,6 @@ name: CI/CD Pipeline
 on:
   push:
     tags: [ 'v*' ]  # Run workflow on tags starting with 'v'
-  release:
-    types: [ published ]
 
 jobs:
   test:
@@ -63,7 +61,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
     - uses: actions/checkout@v4
@@ -126,12 +124,13 @@ jobs:
         path: dist/
     
     - name: Publish to PyPI
-      if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/v')
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         echo "Deploying to PyPI..."
+        echo "Using token: ${{ secrets.PYPI_API_TOKEN != '' && 'Token set' || 'Token missing' }}"
         twine upload dist/*
         echo "Successfully deployed to PyPI!"
 
