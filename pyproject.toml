@@ -50,10 +50,10 @@ dev = [
     "build>=0.10.0",
     "twine>=4.0.0",
 ]
-docs = [
-    "sphinx>=5.0.0",
-    "sphinx-rtd-theme>=1.0.0",
-]
+# docs = [
+#     "sphinx>=5.0.0",
+#     "sphinx-rtd-theme>=1.0.0",
+# ]
 
 [project.urls]
 Homepage = "https://github.com/mosaia-development/mosaia-python-sdk"

@@ -9,6 +9,6 @@ mypy>=1.0.0
 build>=0.10.0
 twine>=4.0.0
 
-# Documentation dependencies
-sphinx>=5.0.0
-sphinx-rtd-theme>=1.0.0
+# Documentation dependencies (disabled for initial release)
+# sphinx>=5.0.0
+# sphinx-rtd-theme>=1.0.0

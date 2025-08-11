@@ -45,10 +45,10 @@ setup(
             'flake8>=5.0.0',
             'mypy>=1.0.0',
         ],
-        'docs': [
-            'sphinx>=5.0.0',
-            'sphinx-rtd-theme>=1.0.0',
-        ],
+        # 'docs': [
+        #     'sphinx>=5.0.0',
+        #     'sphinx-rtd-theme>=1.0.0',
+        # ],
     },
     keywords="ai, artificial intelligence, api, sdk, mosaia, agents, tools, applications",
     project_urls={
