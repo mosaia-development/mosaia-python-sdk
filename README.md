@@ -148,23 +148,27 @@ The sandbox tests the following functionality:
 
 ## Recent Updates
 
-### API Response Handling Improvements (v1.2.0)
+### Initial Release (v0.0.1)
 
-The SDK now includes improved API response handling and model instantiation:
+The SDK is now ready for production use with the following features:
 
-- ✅ **Standardized Response Structure**: All API responses now follow a consistent structure with a `data` field
-- ✅ **Enhanced Model Instantiation**: Models now receive proper URI context for resource identification
+- ✅ **Complete Package Structure**: Modern Python packaging with pyproject.toml
+- ✅ **Automated CI/CD**: GitHub Actions workflow for testing and deployment
+- ✅ **Quality Assurance**: Comprehensive linting and code quality checks
+- ✅ **Test Coverage**: Full test suite covering all major functionality
+- ✅ **Documentation**: Complete API documentation and examples
+- ✅ **Type Safety**: Full type hints and dataclass support
+
+### API Response Handling Improvements
+
+The SDK includes improved API response handling and model instantiation:
+
+- ✅ **Standardized Response Structure**: All API responses follow a consistent structure with a `data` field
+- ✅ **Enhanced Model Instantiation**: Models receive proper URI context for resource identification
 - ✅ **Improved Error Handling**: Better error messages for invalid API responses
 - ✅ **Collection URI Support**: Collections properly pass URIs to models for resource operations
 
-**Before (v1.1.0)**:
-```python
-# Inconsistent response handling
-response = {'id': '1', 'name': 'Test'}  # ❌ No data wrapper
-model = Model(response)  # ❌ Missing URI context
-```
-
-**After (v1.2.0)**:
+**Example Response Handling**:
 ```python
 # Standardized response structure
 response = {'data': {'id': '1', 'name': 'Test'}}  # ✅ Proper data wrapper
@@ -175,22 +179,16 @@ if not isinstance(response, dict) or 'data' not in response:
     raise Exception('Invalid response from API')
 ```
 
-### URL Construction Improvements (v1.1.0)
+### URL Construction Improvements
 
-The SDK now includes improved URL construction that properly handles API versioning:
+The SDK includes improved URL construction that properly handles API versioning:
 
-- ✅ **Proper API Version Injection**: URLs now correctly include the API version (e.g., `/v1/auth/signin`)
+- ✅ **Proper API Version Injection**: URLs correctly include the API version (e.g., `/v1/auth/signin`)
 - ✅ **Leading Slash Handling**: Automatic removal of leading slashes for consistent URL formatting
 - ✅ **Query Parameter Support**: Proper query string construction and encoding
 - ✅ **Complex Path Support**: Handles complex nested paths correctly
 
-**Before (v1.0.0)**:
-```python
-# URLs were missing API version
-# https://api.mosaia.ai/auth/signin  # ❌ Missing /v1
-```
-
-**After (v1.1.0)**:
+**Example URL Construction**:
 ```python
 # URLs now include proper API version
 # https://api.mosaia.ai/v1/auth/signin  # ✅ Correct
@@ -479,7 +477,7 @@ is_expired = is_timestamp_expired("2024-01-01T00:00:00Z")
 ```bash
 git clone https://github.com/mosaia-development/mosaia-python-sdk.git
 cd mosaia-python-sdk
-pip install -e .
+pip install -e .[dev]
 ```
 
 ### Running Tests
@@ -522,12 +520,45 @@ The test suite covers:
   - Error response creation
   - Error handling with custom status codes
 
-### Code Formatting
+### Code Quality
+
+The project includes comprehensive code quality tools:
 
 ```bash
-black mosaia/
-isort mosaia/
+# Run linting
+flake8 mosaia/ tests/
+
+# Run code formatting
+black mosaia/ tests/
+isort mosaia/ tests/
+
+# Run type checking
+mypy mosaia/
 ```
+
+## Building and Deployment
+
+### Local Build
+
+```bash
+# Clean previous builds
+make clean
+
+# Build package
+make build
+
+# Test the built package
+pip install dist/mosaia-0.0.1-py3-none-any.whl
+```
+
+### Automated Deployment
+
+The project uses GitHub Actions for automated CI/CD:
+
+- **Testing**: Runs on Python 3.8-3.12
+- **Quality Checks**: Linting, formatting, and type checking
+- **Build**: Automated package building
+- **Deployment**: Automatic PyPI deployment on releases
 
 ## Documentation
 
@@ -539,7 +570,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
