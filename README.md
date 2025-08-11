@@ -47,12 +47,19 @@ agent = await client.agents.create({
 ### Using Individual Collections
 
 ```python
-from mosaia import Users, Agents, Apps
+from mosaia import MosaiaClient
 
-# Create collection instances
-users = Users()
-agents = Agents()
-apps = Apps()
+# Initialize the client first
+client = MosaiaClient({
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
+})
+
+# Access collections through the client
+users = client.users
+agents = client.agents
+apps = client.apps
 
 # Perform operations
 all_users = await users.get()
@@ -244,9 +251,17 @@ tokens = await oauth.authenticate_with_code_and_verifier(code, code_verifier)
 ### Users
 
 ```python
-from mosaia import Users
+from mosaia import MosaiaClient
 
-users = Users()
+# Initialize the client first
+client = MosaiaClient({
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
+})
+
+# Access users collection
+users = client.users
 
 # Get all users
 all_users = await users.get()
@@ -281,9 +296,17 @@ active_users = await users.get_active_users(limit=50)
 ### Agents
 
 ```python
-from mosaia import Agents
+from mosaia import MosaiaClient
 
-agents = Agents()
+# Initialize the client first
+client = MosaiaClient({
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
+})
+
+# Access agents collection
+agents = client.agents
 
 # Get all agents
 all_agents = await agents.get()
@@ -308,9 +331,17 @@ completion = await agents.chat_completion("agent-id", {
 ### Applications
 
 ```python
-from mosaia import Apps
+from mosaia import MosaiaClient
 
-apps = Apps()
+# Initialize the client first
+client = MosaiaClient({
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
+})
+
+# Access apps collection
+apps = client.apps
 
 # Get all applications
 all_apps = await apps.get()
@@ -328,9 +359,17 @@ new_app = await apps.create({
 ### Organizations
 
 ```python
-from mosaia import Organizations
+from mosaia import MosaiaClient
 
-orgs = Organizations()
+# Initialize the client first
+client = MosaiaClient({
+    "api_key": "your-api-key",
+    "api_url": "https://api.mosaia.ai",
+    "version": "1"
+})
+
+# Access organizations collection
+orgs = client.organizations
 
 # Get all organizations
 all_orgs = await orgs.get()
