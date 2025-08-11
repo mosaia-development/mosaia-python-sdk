@@ -193,7 +193,9 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('agents')
+        # Lazy import to avoid circular dependencies at import time
+        from mosaia.collections import Agents
+        return Agents(self.get_uri())
     
     @property
     def apps(self):
@@ -226,7 +228,8 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('apps')
+        from mosaia.collections import Apps
+        return Apps(self.get_uri())
     
     @property
     def clients(self):
@@ -263,7 +266,8 @@ class User(BaseModel[Dict[str, Any]]):
             >>> print(f"ID: {client.client_id}")
             >>> print(f"Secret: {client.client_secret}")
         """
-        return self._get_collection('clients')
+        from mosaia.collections import Clients
+        return Clients(self.get_uri())
     
     @property
     def groups(self):
@@ -300,7 +304,8 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('groups')
+        from mosaia.collections import AgentGroups
+        return AgentGroups(self.get_uri())
     
     @property
     def models(self):
@@ -341,7 +346,8 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('models')
+        from mosaia.collections import Models
+        return Models(self.get_uri())
     
     @property
     def orgs(self):
@@ -383,7 +389,8 @@ class User(BaseModel[Dict[str, Any]]):
             >>> org_agents = await mosaia.agents.get()
             >>> print(f"Organization has {len(org_agents)} agents")
         """
-        return self._get_collection('orgs')
+        from mosaia.collections import OrgUsers
+        return OrgUsers(uri=self.get_uri(), endpoint='/org')
     
     @property
     def tools(self):
@@ -451,27 +458,8 @@ class User(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('tools')
-    
-    def _get_collection(self, collection_name: str):
-        """
-        Get a collection instance for this user.
-        
-        This is a placeholder method that would return the appropriate
-        collection instance based on the collection name.
-        
-        Args:
-            collection_name: Name of the collection to get
-            
-        Returns:
-            Collection instance
-        """
-        # This would be implemented to return the actual collection
-        # For now, we'll return a placeholder
-        return type(f'{collection_name.capitalize()}Collection', (), {
-            'get': lambda: [],
-            'create': lambda data: data
-        })()
+        from mosaia.collections import Tools
+        return Tools(self.get_uri())
     
     async def upload_profile_image(self, file) -> 'User':
         """
@@ -522,8 +510,13 @@ class User(BaseModel[Dict[str, Any]]):
             ...         raise error
         """
         try:
-            # This would implement the actual file upload logic
-            # For now, we'll return the user instance
+            path = f"{self.get_uri()}/profile/image/upload"
+            response = await self.api_client.post_multipart(path, file)
+
+            if isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, dict):
+                    self.update(data)
             return self
         except Exception as error:
             raise self._handle_error(error)

@@ -46,7 +46,7 @@ class AppBots(BaseCollection[Dict[str, Any], AppBot, Any, Any]):
         Creates a new AppBots API client instance.
         
         Args:
-            uri: Optional base URI path. If provided, the endpoint will be `${uri}/app-bot`.
-                  If not provided, defaults to `/app-bot`.
+            uri: Optional base URI path. If provided, the endpoint will be `${uri}/bot`.
+                  If not provided, defaults to `/bot`.
         """
-        super().__init__(f"{uri}/app-bot", AppBot)
+        super().__init__(f"{uri}/bot", AppBot)

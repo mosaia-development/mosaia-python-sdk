@@ -98,14 +98,17 @@ class Agent(BaseModel[Dict[str, Any]]):
             ...     print('Agent image uploaded successfully')
         """
         try:
-            # This would implement the actual file upload logic
-            # For now, we'll return the agent instance
+            path = f"{self.get_uri()}/image/upload"
+            response = await self.api_client.post_multipart(path, file)
+
+            # Update with response payload
+            if isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, dict):
+                    self.update(data)
             return self
         except Exception as error:
-            if hasattr(error, 'message'):
-                raise self._handle_error(error)
-            else:
-                raise self._handle_error(Exception('Unknown error occurred'))
+            raise self._handle_error(error)
     
     @property
     def chat(self) -> Chat:
@@ -130,8 +133,4 @@ class Agent(BaseModel[Dict[str, Any]]):
             >>> 
             >>> print('Agent response:', response['choices'][0]['message']['content'])
         """
-        try:
-            return Chat(self.get_uri())
-        except Exception:
-            # If no ID, return a Chat instance with the base URI
-            return Chat(self.uri)
+        return Chat(self.get_uri())

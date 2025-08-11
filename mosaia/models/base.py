@@ -79,12 +79,20 @@ class BaseModel(ABC, Generic[T]):
         self.uri = uri or ''
         self.config_manager = ConfigurationManager.get_instance()
         
-        # Map data properties to instance attributes
+        # Map data properties to instance attributes without triggering property getters
+        reserved_keys = ['config', 'api_client', 'data', 'uri', 'config_manager']
         for key, value in self.data.items():
-            # Don't set properties that already have getter methods defined
-            # or are reserved attributes
-            if (not hasattr(self, key) or not callable(getattr(self, key, None))) and key not in ['config', 'api_client', 'data', 'uri', 'config_manager']:
-                setattr(self, key, value)
+            if key in reserved_keys:
+                continue
+            # Inspect class attributes to avoid evaluating property getters on the instance
+            class_attr = getattr(self.__class__, key, None)
+            # Skip if there is a property or a callable defined on the class with this name
+            if isinstance(class_attr, property) or callable(class_attr):
+                continue
+            # Skip if already set explicitly
+            if key in self.__dict__:
+                continue
+            setattr(self, key, value)
         
         # Create API client (uses ConfigurationManager internally)
         self.api_client = APIClient()
@@ -424,7 +432,7 @@ class BaseModel(ABC, Generic[T]):
             ...         pass
         """
         if not self.has_id():
-            raise Exception('Entity ID is required')
+            return self.uri
         return f"{self.uri}/{self.get_id()}"
     
     def _handle_error(self, error: Any) -> Exception:

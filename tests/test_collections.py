@@ -69,14 +69,16 @@ class TestBaseCollection:
         
         result = await self.base_collection.get()
         
-        assert result.data == mock_response['data']
+        # Updated behavior: batch response contains model instances
+        # Verify that items were passed to model class constructor
+        assert len(result.data) == len(mock_response['data'])
         assert result.paging.total == 2
         self.mock_api_client.get.assert_called_once_with('/test', None)
     
     @pytest.mark.asyncio
     async def test_get_should_return_single_model_for_id(self):
         """Test that get returns single model for ID requests."""
-        mock_response = {'id': '1', 'name': 'Test'}
+        mock_response = {'data': {'id': '1', 'name': 'Test'}}
         self.mock_api_client.get = AsyncMock(return_value=mock_response)
         
         mock_model_class = Mock()
@@ -91,13 +93,16 @@ class TestBaseCollection:
                 result = await collection.get(id='1')
                 
                 assert result == mock_model_instance
-                mock_model_class.assert_called_once_with(mock_response)
+                mock_model_class.assert_called_once_with(mock_response['data'], '/test')
                 self.mock_api_client.get.assert_called_once_with('/test/1', None)
     
     @pytest.mark.asyncio
     async def test_get_should_handle_query_params(self):
         """Test that get handles query parameters."""
-        mock_response = {'data': [{'id': '1'}]}
+        mock_response = {
+            'data': [{'id': '1'}],
+            'paging': {'total': 1, 'limit': 10, 'offset': 0}
+        }
         self.mock_api_client.get = AsyncMock(return_value=mock_response)
         
         params = {'limit': 10, 'offset': 0}
@@ -108,7 +113,7 @@ class TestBaseCollection:
     @pytest.mark.asyncio
     async def test_create_should_return_model_instance(self):
         """Test that create returns model instance."""
-        mock_response = {'id': '1', 'name': 'Test'}
+        mock_response = {'data': {'id': '1', 'name': 'Test'}}
         self.mock_api_client.post = AsyncMock(return_value=mock_response)
         
         mock_model_class = Mock()
@@ -124,7 +129,7 @@ class TestBaseCollection:
                 result = await collection.create(data)
                 
                 assert result == mock_model_instance
-                mock_model_class.assert_called_once_with(mock_response)
+                mock_model_class.assert_called_once_with(mock_response['data'], None)
                 self.mock_api_client.post.assert_called_once_with('/test', data)
 
 
@@ -261,7 +266,7 @@ class TestOrgUsers:
             args, kwargs = mock_init.call_args
             # The arguments are: (uri, model_class) - self is not included in args
             assert len(args) == 2
-            assert args[0] == '/org-user'  # URI should be '/org-user'
+            assert args[0] == '/user'  # URI should be '/user'
             assert args[1].__name__ == 'OrgUser'  # Model class should be OrgUser
     
     def test_should_initialize_with_custom_uri(self):
@@ -274,7 +279,7 @@ class TestOrgUsers:
             args, kwargs = mock_init.call_args
             # The arguments are: (uri, model_class) - self is not included in args
             assert len(args) == 2
-            assert args[0] == '/custom/org-user'  # URI should be '/custom/org-user'
+            assert args[0] == '/custom/user'  # URI should be '/custom/user'
             assert args[1].__name__ == 'OrgUser'  # Model class should be OrgUser
 
 
@@ -381,7 +386,7 @@ class TestAppBots:
             args, kwargs = mock_init.call_args
             # The arguments are: (uri, model_class) - self is not included in args
             assert len(args) == 2
-            assert args[0] == '/app-bot'  # URI should be '/app-bot'
+            assert args[0] == '/bot'  # URI should be '/bot'
             assert args[1].__name__ == 'AppBot'  # Model class should be AppBot
     
     def test_should_initialize_with_custom_uri(self):
@@ -394,7 +399,7 @@ class TestAppBots:
             args, kwargs = mock_init.call_args
             # The arguments are: (uri, model_class) - self is not included in args
             assert len(args) == 2
-            assert args[0] == '/custom/app-bot'  # URI should be '/custom/app-bot'
+            assert args[0] == '/custom/bot'  # URI should be '/custom/bot'
             assert args[1].__name__ == 'AppBot'  # Model class should be AppBot
 
 

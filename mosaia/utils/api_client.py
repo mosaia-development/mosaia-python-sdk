@@ -18,9 +18,9 @@ Features:
 import json
 import logging
 from typing import Any, Dict, Optional, Union, TypeVar, Generic
+import mimetypes
 from urllib.parse import urlencode, urljoin
 import aiohttp
-import requests
 from dataclasses import dataclass
 
 # Try to import from parent modules, with fallbacks
@@ -166,6 +166,10 @@ class APIClient:
         self.skip_token_refresh = skip_token_refresh
         self.base_url = ''
         self.headers: Dict[str, str] = {}
+        # Note: We intentionally avoid holding a long-lived aiohttp.ClientSession
+        # to ensure the SDK does not require callers to manage lifecycle.
+        # Each request is performed with an ephemeral session that is closed
+        # automatically, preventing resource leaks and unclosed-session warnings.
         self._session: Optional[aiohttp.ClientSession] = None
         
         # Initialize the client
@@ -212,6 +216,11 @@ class APIClient:
             if not config:
                 raise RuntimeError('No valid config found')
             
+            # Ensure the resolved configuration is stored on the client instance
+            # so that features gated by configuration flags (e.g., verbose logging)
+            # work correctly even when APIClient is instantiated without an explicit config.
+            self.config = config
+
             api_url = getattr(config, 'api_url', None) or DEFAULT_CONFIG['API']['BASE_URL']
             version = getattr(config, 'version', None) or DEFAULT_CONFIG['API']['VERSION']
             api_key = getattr(config, 'api_key', None) or ''
@@ -239,6 +248,13 @@ class APIClient:
         except Exception as error:
             logger.error(f"Failed to update client config: {error}")
             raise
+
+    async def __aenter__(self):
+        """Support async context management for convenience and safety."""
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
     
     def _handle_error(self, error: Exception, status: Optional[int] = None) -> ErrorResponse:
         """
@@ -334,55 +350,54 @@ class APIClient:
             if data:
                 logger.info(f"📦 Request Body: {data}")
         
-        # Create session if it doesn't exist or is closed
-        if not self._session or self._session.closed:
-            self._session = aiohttp.ClientSession()
-        
+        # Use an ephemeral session per request to avoid lifecycle management
+        # requirements for SDK consumers and prevent resource leaks.
         try:
-            async with self._session.request(**request_options) as response:
-                # Log response if verbose mode is enabled
-                if self.config and getattr(self.config, 'verbose', False):
-                    logger.info(f"✅ HTTP Response: {response.status} {method.upper()} {path}")
-                
-                # Handle 204 No Content responses
-                if response.status == 204:
+            async with aiohttp.ClientSession() as session:
+                async with session.request(**request_options) as response:
+                    # Log response if verbose mode is enabled
                     if self.config and getattr(self.config, 'verbose', False):
-                        logger.info("📄 Response Data: No Content (204)")
-                    return None
-                
-                # Check if response is ok (status in 200-299 range)
-                if not response.ok:
-                    try:
-                        error_data = await response.json()
-                    except:
-                        error_data = {'message': response.reason}
+                        logger.info(f"✅ HTTP Response: {response.status} {method.upper()} {path}")
+                    
+                    # Handle 204 No Content responses
+                    if response.status == 204:
+                        if self.config and getattr(self.config, 'verbose', False):
+                            logger.info("📄 Response Data: No Content (204)")
+                        return None
+                    
+                    # Check if response is ok (status in 200-299 range)
+                    if not response.ok:
+                        try:
+                            error_data = await response.json()
+                        except:
+                            error_data = {'message': response.reason}
+                        
+                        if self.config and getattr(self.config, 'verbose', False):
+                            logger.error(f"❌ HTTP Error: {response.status} {method.upper()} {path}")
+                            logger.error(f"🚨 Error Details: {error_data}")
+                        
+                        raise Exception(error_data.get('message', response.reason))
+                    
+                    # Parse response data
+                    content_type = response.headers.get('content-type', '')
+                    if 'application/json' in content_type:
+                        response_data = await response.json()
+                    else:
+                        response_data = await response.text()
                     
                     if self.config and getattr(self.config, 'verbose', False):
-                        logger.error(f"❌ HTTP Error: {response.status} {method.upper()} {path}")
-                        logger.error(f"🚨 Error Details: {error_data}")
+                        logger.info(f"📄 Response Data: {response_data}")
                     
-                    raise Exception(error_data.get('message', response.reason))
-                
-                # Parse response data
-                content_type = response.headers.get('content-type', '')
-                if 'application/json' in content_type:
-                    response_data = await response.json()
-                else:
-                    response_data = await response.text()
-                
-                if self.config and getattr(self.config, 'verbose', False):
-                    logger.info(f"📄 Response Data: {response_data}")
-                
-                # If response has an error parameter, raise an exception
-                if isinstance(response_data, dict) and response_data.get('error'):
-                    raise Exception(response_data['error'])
-                
-                # Remove error and meta parameters from response
-                if isinstance(response_data, dict):
-                    response_data.pop('error', None)
-                    response_data.pop('meta', None)
-                
-                return response_data
+                    # If response has an error parameter, raise an exception
+                    if isinstance(response_data, dict) and response_data.get('error'):
+                        raise Exception(response_data['error'])
+                    
+                    # Remove error and meta parameters from response
+                    if isinstance(response_data, dict):
+                        response_data.pop('error', None)
+                        response_data.pop('meta', None)
+                    
+                    return response_data
                 
         except Exception as error:
             if self.config and getattr(self.config, 'verbose', False):
@@ -493,9 +508,140 @@ class APIClient:
             ... })
         """
         return await self._make_request('DELETE', path, params=params)
+
+    async def post_multipart(
+        self,
+        path: str,
+        file: Any,
+        field_name: str = 'file',
+        extra_fields: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, Any]] = None
+    ) -> Any:
+        """
+        Makes a POST multipart/form-data request to upload files.
+
+        Args:
+            path: API endpoint path (e.g., '/user/profile/image/upload')
+            file: File path (str), bytes, or a file-like object to upload
+            field_name: Form field name for the file (defaults to 'file')
+            extra_fields: Optional additional form fields to include
+            params: Optional query parameters
+
+        Returns:
+            API response data
+        """
+        await self._update_client_config()
+
+        # Construct URL
+        if path.startswith('/'):
+            path = path[1:]
+        url = f"{self.base_url}/{path}"
+        if params:
+            query_string = self._build_query_string(params)
+            if query_string:
+                url += query_string
+
+        # Prepare multipart form data
+        form = aiohttp.FormData()
+
+        filename: Optional[str] = None
+        content_type: Optional[str] = None
+        file_obj: Optional[Any] = None
+        file_bytes: Optional[bytes] = None
+
+        try:
+            # Determine file input type
+            if isinstance(file, (bytes, bytearray)):
+                file_bytes = bytes(file)
+                filename = 'upload'
+            elif isinstance(file, str):
+                # Treat as filesystem path
+                filename = file.split('/')[-1] or 'upload'
+                content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+                file_obj = open(file, 'rb')
+            elif hasattr(file, 'read'):
+                # File-like object
+                filename = getattr(file, 'name', None)
+                if filename:
+                    filename = str(filename).split('/')[-1]
+                else:
+                    filename = 'upload'
+                # Best-effort content type guess
+                content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+                # Read into memory to avoid relying on external lifecycle management
+                file_bytes = file.read()
+            else:
+                raise ValueError('Unsupported file type for upload')
+
+            if file_bytes is not None:
+                form.add_field(
+                    field_name,
+                    file_bytes,
+                    filename=filename,
+                    content_type=content_type or mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+                )
+            else:
+                # file_obj is opened above for path case
+                form.add_field(
+                    field_name,
+                    file_obj,
+                    filename=filename,
+                    content_type=content_type or 'application/octet-stream'
+                )
+
+            # Add any extra fields
+            if extra_fields:
+                for k, v in extra_fields.items():
+                    # Coerce to string for form fields
+                    form.add_field(k, '' if v is None else str(v))
+
+            # Build request options; let aiohttp set Content-Type with boundary
+            headers = self.headers.copy()
+            headers.pop('Content-Type', None)
+
+            if self.config and getattr(self.config, 'verbose', False):
+                logger.info(f"🚀 HTTP Request: POST {url} (multipart)")
+                logger.info(f"🔑 Headers: {headers}")
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, data=form, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    if self.config and getattr(self.config, 'verbose', False):
+                        logger.info(f"✅ HTTP Response: {response.status} POST {path}")
+
+                    if response.status == 204:
+                        return None
+
+                    if not response.ok:
+                        try:
+                            error_data = await response.json()
+                        except:
+                            error_data = {'message': response.reason}
+                        if self.config and getattr(self.config, 'verbose', False):
+                            logger.error(f"❌ HTTP Error: {response.status} POST {path}")
+                            logger.error(f"🚨 Error Details: {error_data}")
+                        raise Exception(error_data.get('message', response.reason))
+
+                    content_type_header = response.headers.get('content-type', '')
+                    if 'application/json' in content_type_header:
+                        response_data = await response.json()
+                    else:
+                        response_data = await response.text()
+
+                    if isinstance(response_data, dict):
+                        response_data.pop('error', None)
+                        response_data.pop('meta', None)
+
+                    return response_data
+        finally:
+            # Ensure we close file handles we opened
+            if file_obj is not None and not file_obj.closed:
+                try:
+                    file_obj.close()
+                except Exception:
+                    pass
     
     async def close(self) -> None:
-        """Close the aiohttp session."""
+        """Close any retained session (no-op for ephemeral usage)."""
         if self._session and not self._session.closed:
             await self._session.close()
         self._session = None

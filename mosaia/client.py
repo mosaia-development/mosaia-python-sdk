@@ -482,17 +482,17 @@ class MosaiaClient:
             if not self.config:
                 raise Exception('Mosaia is not initialized')
             
-            client = APIClient()
-            response = await client.get('/self')
+            # Use APIClient as a context manager to auto-close resources
+            async with APIClient() as client:
+                response = await client.get('/self')
             
             if 'error' in response:
                 raise Exception(response['error']['message'])
             
             return Session(response.get('data', {}))
         except Exception as error:
-            if hasattr(error, 'message'):
-                raise Exception(str(error.message))
-            raise Exception('Unknown error occurred')
+            # Preserve the actual error message for easier debugging
+            raise Exception(str(error))
     
     def oauth(self, oauth_config: OAuthConfig) -> OAuth:
         """

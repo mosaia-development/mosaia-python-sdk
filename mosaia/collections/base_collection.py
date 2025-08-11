@@ -188,29 +188,37 @@ class BaseCollection(ABC, Generic[T, M, GetPayload, CreatePayload]):
             
             response = await self._api_client.get(uri, params)
             
-            # Handle the case where response might be undefined or null
-            if not response or 'data' not in response:
+            # No response
+            if response is None:
+                return None
+            
+            # List retrieval without ID must include paging; raw lists are invalid
+            if isinstance(response, list):
                 raise Exception('Invalid response from API')
             
-            data = response.get('data')
-            paging = response.get('paging')
+            if isinstance(response, dict):
+                data = response.get('data')
+                paging = response.get('paging')
+                if isinstance(data, list):
+                    # Require paging metadata for batch responses
+                    if paging is None:
+                        raise Exception('Invalid response from API')
+                    paging_obj = paging
+                    if isinstance(paging, dict):
+                        paging_obj = PagingInterface(**{k: v for k, v in paging.items() if k in ['offset','limit','total','page','total_pages']})
+                    # Convert raw data items to model instances
+                    model_instances = [self._create_model(item, self.uri) for item in data]
+                    return BatchAPIResponse(data=model_instances, paging=paging_obj)
+                if isinstance(data, dict):
+                    return self._create_model(data, self.uri)
+                # Unknown dict shape
+                raise Exception('Invalid response from API')
             
-            # Handle array response (list of entities)
-            if isinstance(data, list):
-                return BatchAPIResponse(
-                    data=[self._model_class(item, uri) for item in data],
-                    paging=paging
-                )
-            
-            # Handle single entity response
-            if data:
-                return self._model_class(data, uri)
-            
-            return None
+            # Unknown response type
+            raise Exception('Invalid response from API')
         except Exception as error:
-            if hasattr(error, 'message'):
-                raise Exception(str(error.message))
-            raise Exception('Unknown error occurred')
+            # Preserve original error message for easier debugging
+            raise Exception(str(error))
     
     async def create(self, entity: Dict[str, Any]) -> M:
         """
@@ -258,15 +266,35 @@ class BaseCollection(ABC, Generic[T, M, GetPayload, CreatePayload]):
             response = await self._api_client.post(self._uri, entity)
             
             # Handle the case where response might be undefined or null
-            if not response or 'data' not in response:
+            if response is None:
                 raise Exception('Invalid response from API')
             
-            data = response.get('data')
-            return self._model_class(data)
+            if isinstance(response, dict) and 'data' in response:
+                return self._create_model(response.get('data'))
+            
+            # Treat a plain dict as the created entity payload
+            if isinstance(response, dict):
+                return self._create_model(response)
+            
+            raise Exception('Invalid response from API')
         except Exception as error:
-            if hasattr(error, 'message'):
-                raise Exception(str(error.message))
-            raise Exception('Unknown error occurred')
+            # Preserve original error message for easier debugging
+            raise Exception(str(error))
+    
+    def _create_model(self, data: Dict[str, Any], uri: Optional[str] = None) -> M:
+        """
+        Create a model instance from raw data.
+        
+        This method can be overridden by subclasses to customize model instantiation.
+        By default, it creates a model instance directly using the model class.
+        
+        Args:
+            data: Raw data to create the model from
+            
+        Returns:
+            Model instance
+        """
+        return self._model_class(data, uri)
     
     def _handle_error(self, error: Any) -> Exception:
         """
@@ -289,9 +317,6 @@ class BaseCollection(ABC, Generic[T, M, GetPayload, CreatePayload]):
             ... except Exception as error:
             ...     raise self._handle_error(error)
         """
-        if hasattr(error, 'message'):
-            return Exception(str(error.message))
-        
         if isinstance(error, dict) and 'message' in error:
             return Exception(error['message'])
         

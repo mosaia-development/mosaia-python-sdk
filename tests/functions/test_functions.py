@@ -63,7 +63,7 @@ class TestBaseFunctions:
         handled_error = functions._handle_error(string_error)
         assert str(handled_error) == "String error"
         
-        # Test with unknown error
+        # Test with unknown error: should still coerce to a generic message
         unknown_error = object()
         handled_error = functions._handle_error(unknown_error)
         assert str(handled_error) == "Unknown error occurred"

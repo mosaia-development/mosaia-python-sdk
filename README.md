@@ -148,6 +148,33 @@ The sandbox tests the following functionality:
 
 ## Recent Updates
 
+### API Response Handling Improvements (v1.2.0)
+
+The SDK now includes improved API response handling and model instantiation:
+
+- ✅ **Standardized Response Structure**: All API responses now follow a consistent structure with a `data` field
+- ✅ **Enhanced Model Instantiation**: Models now receive proper URI context for resource identification
+- ✅ **Improved Error Handling**: Better error messages for invalid API responses
+- ✅ **Collection URI Support**: Collections properly pass URIs to models for resource operations
+
+**Before (v1.1.0)**:
+```python
+# Inconsistent response handling
+response = {'id': '1', 'name': 'Test'}  # ❌ No data wrapper
+model = Model(response)  # ❌ Missing URI context
+```
+
+**After (v1.2.0)**:
+```python
+# Standardized response structure
+response = {'data': {'id': '1', 'name': 'Test'}}  # ✅ Proper data wrapper
+model = Model(response['data'], '/resource')  # ✅ With URI context
+
+# Proper error handling
+if not isinstance(response, dict) or 'data' not in response:
+    raise Exception('Invalid response from API')
+```
+
 ### URL Construction Improvements (v1.1.0)
 
 The SDK now includes improved URL construction that properly handles API versioning:

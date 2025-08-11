@@ -150,7 +150,9 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...     'system_prompt': 'You are a helpful support agent.'
             ... })
         """
-        return self._get_collection('agents')
+        from mosaia.collections import Agents
+
+        return Agents(self.get_uri())
     
     @property
     def apps(self):
@@ -182,7 +184,8 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('apps')
+        from mosaia.collections import Apps
+        return Apps(self.get_uri())
     
     @property
     def models(self):
@@ -218,7 +221,9 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('models')
+        from mosaia.collections import Models
+        
+        return Models(self.get_uri())
     
     @property
     def tools(self):
@@ -253,12 +258,14 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('tools')
+        from mosaia.collections import Tools
+        
+        return Tools(self.get_uri())
     
     @property
-    def orgs(self):
+    def users(self):
         """
-        Get the organization's team members.
+        Get the organization's user relationships (OrgUsers).
         
         This property provides access to the organization's user relationships
         through the OrgUsers collection. It enables management of team members,
@@ -269,13 +276,13 @@ class Organization(BaseModel[Dict[str, Any]]):
             
         Examples:
             List team members:
-            >>> members = await org.orgs.get()
+            >>> members = await org.users.get()
             >>> for member in members:
             ...     print(f'Member: {member.user.name}')
             ...     print(f'Role: {member.permission}')
             
             Add team member:
-            >>> member = await org.orgs.create({
+            >>> member = await org.users.create({
             ...     'user': 'user-123',
             ...     'permission': 'member',
             ...     'metadata': {
@@ -284,79 +291,9 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...         'start_date': '2024-01-01T00:00:00Z'
             ...     }
             ... })
-            >>> 
-            >>> # Create session for member
-            >>> session = await member.session()
         """
-        return self._get_collection('orgs')
-    
-    @property
-    def users(self):
-        """
-        Get the organization's users.
-        
-        This property provides access to the organization's users through the
-        Users collection. It enables management of all users within the
-        organization.
-        
-        Returns:
-            Users collection for managing users
-            
-        Examples:
-            List users:
-            >>> users = await org.users.get()
-            >>> for user in users:
-            ...     print(f'User: {user.name}')
-            ...     print(f'Email: {user.email}')
-            
-            Create user:
-            >>> user = await org.users.create({
-            ...     'username': 'john_doe',
-            ...     'name': 'John Doe',
-            ...     'email': 'john@example.com',
-            ...     'metadata': {
-            ...         'department': 'engineering',
-            ...         'title': 'Senior Developer'
-            ...     }
-            ... })
-        """
-        return self._get_collection('users')
-    
-    @property
-    def clients(self):
-        """
-        Get the organization's OAuth clients.
-        
-        This property provides access to the organization's OAuth clients through
-        the Clients collection. It enables management of authentication and
-        authorization for external applications.
-        
-        Returns:
-            Clients collection for managing OAuth clients
-            
-        Examples:
-            List clients:
-            >>> clients = await org.clients.get()
-            >>> for client in clients:
-            ...     print(f'Client: {client.name}')
-            ...     print(f'ID: {client.client_id}')
-            
-            Create OAuth client:
-            >>> client = await org.clients.create({
-            ...     'name': 'Web Dashboard',
-            ...     'redirect_uris': ['https://app.example.com/oauth/callback'],
-            ...     'scopes': ['read:agents', 'write:apps'],
-            ...     'metadata': {
-            ...         'type': 'web-application',
-            ...         'environment': 'production'
-            ...     }
-            ... })
-            >>> 
-            >>> print('Client credentials:')
-            >>> print(f'ID: {client.client_id}')
-            >>> print(f'Secret: {client.client_secret}')
-        """
-        return self._get_collection('clients')
+        from mosaia.collections import OrgUsers
+        return OrgUsers(self.get_uri())
     
     @property
     def groups(self):
@@ -389,27 +326,43 @@ class Organization(BaseModel[Dict[str, Any]]):
             ...     }
             ... })
         """
-        return self._get_collection('groups')
+        from mosaia.collections import AgentGroups
+        return AgentGroups(self.get_uri())
     
-    def _get_collection(self, collection_name: str):
+    @property
+    def clients(self):
         """
-        Get a collection instance for this organization.
+        Get the organization's OAuth clients.
         
-        This is a placeholder method that would return the appropriate
-        collection instance based on the collection name.
+        This property provides access to the organization's OAuth clients through
+        the Clients collection. It enables management of authentication and
+        authorization for external applications.
         
-        Args:
-            collection_name: Name of the collection to get
-            
         Returns:
-            Collection instance
+            Clients collection for managing OAuth clients
+        
+        Examples:
+            List clients:
+            >>> clients = await org.clients.get()
+            >>> for client in clients:
+            ...     print(f'Client: {client.name}')
+            ...     print(f'ID: {client.client_id}')
+            
+            Create OAuth client:
+            >>> client = await org.clients.create({
+            ...     'name': 'Web Dashboard',
+            ...     'redirect_uris': ['https://app.example.com/oauth/callback'],
+            ...     'scopes': ['read:agents', 'write:apps'],
+            ...     'metadata': {
+            ...         'type': 'web-application',
+            ...         'environment': 'production'
+            ...     }
+            ... })
         """
-        # This would be implemented to return the actual collection
-        # For now, we'll return a placeholder
-        return type(f'{collection_name.capitalize()}Collection', (), {
-            'get': lambda: [],
-            'create': lambda data: data
-        })()
+        from mosaia.collections import Clients
+        return Clients(self.get_uri())
+
+    # Removed _get_collection in favor of concrete collection getters
     
     async def upload_profile_image(self, file) -> 'Organization':
         """

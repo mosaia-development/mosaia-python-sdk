@@ -236,8 +236,10 @@ class TestMosaiaClient:
         """Test that session method returns Session instance."""
         with patch('mosaia.client.ConfigurationManager'):
             with patch('mosaia.client.APIClient') as mock_api_client:
+                # Configure async context manager behavior
                 mock_client_instance = AsyncMock()
-                mock_api_client.return_value = mock_client_instance
+                mock_api_client.return_value.__aenter__.return_value = mock_client_instance
+                mock_api_client.return_value.__aexit__ = AsyncMock()
                 
                 mock_response = {'data': {'id': 'user-123', 'email': 'test@example.com'}}
                 mock_client_instance.get.return_value = mock_response
@@ -255,15 +257,18 @@ class TestMosaiaClient:
         """Test that session method handles error responses."""
         with patch('mosaia.client.ConfigurationManager'):
             with patch('mosaia.client.APIClient') as mock_api_client:
+                # Configure async context manager behavior
                 mock_client_instance = AsyncMock()
-                mock_api_client.return_value = mock_client_instance
+                mock_api_client.return_value.__aenter__.return_value = mock_client_instance
+                mock_api_client.return_value.__aexit__ = AsyncMock()
                 
                 mock_response = {'error': {'message': 'Authentication failed'}}
                 mock_client_instance.get.return_value = mock_response
                 
                 client = MosaiaClient(MosaiaConfig(api_key='test-key'))
                 
-                with pytest.raises(Exception, match='Unknown error occurred'):
+                # Now errors surface with their actual message
+                with pytest.raises(Exception, match='Authentication failed'):
                     await client.session()
     
     @pytest.mark.asyncio
@@ -276,7 +281,8 @@ class TestMosaiaClient:
             
             client = MosaiaClient(MosaiaConfig(api_key='test-key'))
             
-            with pytest.raises(Exception, match='Unknown error occurred'):
+            # Now raises a clear initialization message
+            with pytest.raises(Exception, match='Mosaia is not initialized'):
                 await client.session()
     
     def test_oauth_should_return_oauth_instance(self):

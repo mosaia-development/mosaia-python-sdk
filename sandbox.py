@@ -33,12 +33,17 @@ Example manual setup:
 """
 
 import asyncio
+import logging
 import os
 import sys
 from typing import Optional
 
 # Add the current directory to the path for local development
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Configure logging so INFO logs from the SDK are visible
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.getLogger("mosaia.utils.api_client").setLevel(logging.INFO)
 
 # Try to load python-dotenv
 try:
@@ -125,8 +130,8 @@ async def authenticate(api_url: str, client_id: str, user_email: str, user_passw
         initial_config = MosaiaConfig(
             api_url=api_url,
             client_id=client_id,
-            version='1',
-            verbose=True
+            version='1'
+            # verbose=True
         )
         
         mosaia = MosaiaClient(initial_config)
@@ -175,13 +180,13 @@ async def test_agents(mosaia: MosaiaClient) -> None:
             print('   No agents found')
             return
         
-        # Handle different response formats
-        if isinstance(agents_response, dict):
-            data = agents_response.get('data', [])
-            paging = agents_response.get('paging')
-        else:
-            data = agents_response if isinstance(agents_response, list) else []
-            paging = None
+        data = agents_response.data
+        paging = agents_response.paging
+        
+        # # Handle different response formats
+        # if isinstance(agents_response, dict):
+        #     data = agents_response.get('data', [])
+        #     paging = agents_response.get('paging')
         
         print(f'   Found {len(data) if isinstance(data, list) else 0} agents')
         if paging:
@@ -189,36 +194,32 @@ async def test_agents(mosaia: MosaiaClient) -> None:
         
         if isinstance(data, list) and len(data) > 0:
             first_agent = data[0]
-            print(f'   First agent: {first_agent.get("name", "N/A")}')
-            print(f'   Description: {first_agent.get("description", first_agent.get("short_description", "N/A"))}')
+            print(f'   First agent: {first_agent.name}')
+            print(f'   Description: {first_agent.description}')
             
             # Test chat completion with the first agent
             try:
                 print('   Testing chat completion...')
-                
-                # Create chat completion request
-                from mosaia.types import ChatMessage, ChatCompletionRequest
-                
-                messages = [
-                    ChatMessage(role="user", content="Hello, who are you?")
-                ]
-                
-                completion_request = ChatCompletionRequest(
-                    messages=messages
-                )
+
+                chat_completion_request = {
+                    'messages': [
+                        {
+                            'role': 'user',
+                            'content': 'Hello, who are you?'
+                        }
+                    ]
+                }
                 
                 # Get the agent's chat completions
-                if hasattr(first_agent, 'chat') and hasattr(first_agent.chat, 'completions'):
-                    response = await first_agent.chat.completions.create(completion_request)
+                response = await first_agent.chat.completions.create(chat_completion_request)
                     
-                    if response and hasattr(response, 'choices') and response.choices:
-                        message = response.choices[0].get('message', {})
-                        content = message.get('content', 'No response')
-                        print(f'   Agent response: {content}')
-                    else:
-                        print('   No response from agent')
+                print(f'   Response: {response}')
+                if response.choices:
+                    message = response.choices[0]['message']
+                    content = message.get('content', 'No response')
+                    print(f'   Agent response: {content}')
                 else:
-                    print('   Agent does not support chat completions')
+                    print('   No response from agent')
                     
             except Exception as error:
                 print(f'   ❌ Error testing chat completion: {error}')
@@ -252,25 +253,43 @@ async def test_users(mosaia: MosaiaClient) -> None:
             if hasattr(session.user, 'agents'):
                 try:
                     user_agents = await session.user.agents.get()
-                    if isinstance(user_agents, list):
-                        print(f'   User agents: {len(user_agents)} found')
-                    elif isinstance(user_agents, dict) and 'data' in user_agents:
-                        print(f'   User agents: {len(user_agents["data"])} found')
-                    else:
-                        print(f'   User agents: {user_agents} found')
+                    data = user_agents.data
+                    paging = user_agents.paging
+
+                    print(f'   User agents: {data[0].name}')
+                    print(f'   User agents paging: {paging}')
                 except Exception as error:
                     print(f'   Could not fetch user agents: {error}')
             
             # Test user's organizations
             if hasattr(session.user, 'orgs'):
                 try:
+                    print(f'   User orgs: {session.user.orgs.uri}')
                     user_orgs = await session.user.orgs.get()
-                    if isinstance(user_orgs, list):
-                        print(f'   User organizations: {len(user_orgs)} found')
-                    elif isinstance(user_orgs, dict) and 'data' in user_orgs:
-                        print(f'   User organizations: {len(user_orgs["data"])} found')
-                    else:
-                        print(f'   User organizations: {user_orgs} found')
+
+                    data = user_orgs.data
+                    paging = user_orgs.paging
+
+                    for org_user in data:
+                        if org_user.org:
+                            print(f'   Org user: {org_user.id}')
+                            print(f'   Org user org: {org_user.org.name}')
+                            print(f'   Org user org id: {org_user.org.id}')
+
+                    # print(f'   User orgs: {data}')
+                    print(f'   User orgs paging: {paging}')
+
+                    org_user = await session.user.orgs.get({}, '65a9a716660e8cf0600b5095')
+                    print(f'   SUPER USER ================================')
+                    print(f'   Org user: {org_user}')
+                    print(f'   Org user: {org_user.id}')
+                    print(f'   Org user org: {org_user.org.name}')
+                    print(f'   Org user org id: {org_user.org.id}')
+
+                    org_user_config = await org_user.session()
+                    print(f'   Org user config: {org_user_config}')
+
+                    return MosaiaClient(org_user_config)
                 except Exception as error:
                     print(f'   Could not fetch user organizations: {error}')
         
@@ -289,10 +308,10 @@ async def test_organizations(mosaia: MosaiaClient) -> None:
     """
     try:
         print('\n🏢 Testing organizations functionality...')
-        
         # Get organizations
         orgs_response = await mosaia.organizations.get()
-        
+        print(f'   Org response: {orgs_response}')
+
         if orgs_response:
             if isinstance(orgs_response, dict):
                 data = orgs_response.get('data', [])
@@ -359,8 +378,9 @@ async def main() -> None:
         mosaia = await authenticate(api_url, client_id, user_email, user_password)
         
         # Run tests
-        await test_agents(mosaia)
-        await test_users(mosaia)
+        # await test_agents(mosaia)
+        mosaia = await test_users(mosaia)
+        print(f'   mosaia: {mosaia}')
         await test_organizations(mosaia)
         await test_tools(mosaia)
         

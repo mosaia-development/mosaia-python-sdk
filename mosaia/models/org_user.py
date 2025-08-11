@@ -27,12 +27,16 @@ The class supports various permission levels:
 - Guest: Limited access
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from .base import BaseModel
-from .user import User
-from .organization import Organization
+from mosaia.utils.api_client import MosaiaConfig
 
+if TYPE_CHECKING:
+    # These imports are only for type checkers and won't run at runtime,
+    # preventing circular import issues
+    from .user import User
+    from .organization import Organization
 
 class OrgUser(BaseModel[Dict[str, Any]]):
     """
@@ -123,16 +127,16 @@ class OrgUser(BaseModel[Dict[str, Any]]):
         super().__init__(data, uri or '/org')
     
     @property
-    def user(self) -> User:
+    def user(self):
         """
         Get the associated user details.
         
         This property provides access to the user's details within the context
-        of the organization relationship. It returns a User instance that
-        can be used to access and manage user-specific data.
+        of the organization relationship. When _shallow=True, returns basic user
+        data without creating a full User instance to prevent recursion.
         
         Returns:
-            User instance with full user details
+            User instance or dict with basic user data when _shallow=True
             
         Raises:
             Error: When user data is not available in the relationship
@@ -154,7 +158,10 @@ class OrgUser(BaseModel[Dict[str, Any]]):
             ...     print(f'User data not available: {error}')
         """
         if not self.data.get('user'):
-            raise Exception('User data not available')
+            return None
+            
+        # Lazy import to avoid circular import at runtime
+        from .user import User
         return User(self.data['user'])
     
     @user.setter
@@ -199,7 +206,7 @@ class OrgUser(BaseModel[Dict[str, Any]]):
         self.update({'user': data})
     
     @property
-    def org(self) -> Organization:
+    def org(self):
         """
         Get the associated organization details.
         
@@ -234,7 +241,10 @@ class OrgUser(BaseModel[Dict[str, Any]]):
             ...     print(f'Organization data not available: {error}')
         """
         if not self.data.get('org'):
-            raise Exception('Organization data not available')
+            return None
+            
+        # Lazy import to avoid circular import at runtime
+        from .organization import Organization
         return Organization(self.data['org'])
     
     @org.setter
@@ -280,7 +290,7 @@ class OrgUser(BaseModel[Dict[str, Any]]):
         """
         self.update({'org': data})
     
-    async def session(self) -> Dict[str, Any]:
+    async def session(self) -> MosaiaConfig:
         """
         Create an authenticated session for the organization user.
         
@@ -334,16 +344,17 @@ class OrgUser(BaseModel[Dict[str, Any]]):
             
             # Return the session configuration
             session_data = response.get('data', response) if isinstance(response, dict) else response
-            return {
-                **self.config.__dict__,
-                'apiKey': session_data.get('access_token'),
-                'session': session_data
-            }
+            new_session_config = MosaiaConfig(**self.config.__dict__)
+            new_session_config.api_key = session_data.get('access_token')
+            new_session_config.session = session_data
+
+            return new_session_config
+
         except Exception as error:
             if hasattr(error, 'message'):
                 raise self._handle_error(error)
             else:
-                raise self._handle_error(Exception('Unknown error occurred'))
+                raise self._handle_error(error)
     
     async def disable(self) -> None:
         """

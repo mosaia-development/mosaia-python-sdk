@@ -99,8 +99,13 @@ class AgentGroup(BaseModel[Dict[str, Any]]):
             ...     print('Group logo uploaded successfully')
         """
         try:
-            # This would implement the actual file upload logic
-            # For now, we'll return the agent group instance
+            path = f"{self.get_uri()}/image/upload"
+            response = await self.api_client.post_multipart(path, file)
+
+            if isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, dict):
+                    self.update(data)
             return self
         except Exception as error:
             raise self._handle_error(error)

@@ -6,12 +6,13 @@ standardized interface for generating AI responses. It extends BaseFunctions
 to inherit standard CRUD operations while specializing in chat completions.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 from .base_functions import BaseFunctions
+from ..types import ChatCompletionResponse, ChatMessage
 
 
-class Completions(BaseFunctions[Dict[str, Any], Any, Dict[str, Any]]):
+class Completions(BaseFunctions[Dict[str, Any], Any, ChatCompletionResponse]):
     """
     Completions functions class for managing chat completion operations.
     
@@ -56,3 +57,42 @@ class Completions(BaseFunctions[Dict[str, Any], Any, Dict[str, Any]]):
             >>> completions = Completions('/agent/123/chat')
         """
         super().__init__(f"{uri}/completions")  # Pass the chat endpoint URI to the base class
+        
+    async def create(self, request: Dict[str, Any]) -> ChatCompletionResponse:
+        """
+        Create a chat completion.
+        
+        Args:
+            request: Chat completion request parameters
+                - messages: List of chat messages with role and content
+                - max_tokens: Optional maximum tokens to generate
+                - temperature: Optional temperature for response randomness
+                - stream: Optional flag for streaming responses
+                
+        Returns:
+            ChatCompletionResponse object containing the model's response
+            
+        Examples:
+            >>> response = await completions.create({
+            ...     'messages': [
+            ...         {'role': 'user', 'content': 'Hello!'}
+            ...     ]
+            ... })
+            >>> print(response.choices[0]['message']['content'])
+        """
+        try:
+            response = await super().create(request)
+            
+            # Convert raw response to ChatCompletionResponse dataclass
+            return ChatCompletionResponse(
+                id=response.get('id', ''),
+                object=response.get('object', ''),
+                created=response.get('created', 0),
+                model=response.get('model', ''),
+                choices=response.get('choices', []),
+                usage=response.get('usage'),
+                service_tier=response.get('service_tier', ''),
+                system_fingerprint=response.get('system_fingerprint', '')
+            )
+        except Exception as error:
+            raise self._handle_error(error)

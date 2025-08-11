@@ -34,6 +34,7 @@ class SessionInterface:
     auth_type: Optional[str] = None
     sub: Optional[str] = None
     iat: Optional[str] = None
+    token_type: Optional[str] = None
 
 
 @dataclass

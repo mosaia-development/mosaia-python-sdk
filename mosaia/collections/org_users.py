@@ -40,12 +40,14 @@ class OrgUsers(BaseCollection[Dict[str, Any], OrgUser, Any, Any]):
         ... })
     """
     
-    def __init__(self, uri: str = ""):
+    def __init__(self, uri: str = "", endpoint: str = '/user'):
         """
         Creates a new OrgUsers API client instance.
         
         Args:
-            uri: Optional base URI path. If provided, the endpoint will be `${uri}/org-user`.
-                  If not provided, defaults to `/org-user`.
+            uri: Optional base URI path. If provided, the endpoint will be `${uri}/user`.
+                  If not provided, defaults to `/user`.
         """
-        super().__init__(f"{uri}/org-user", OrgUser)
+        super().__init__(f"{uri}{endpoint}", OrgUser)
+        
+    # Use default model creation from BaseCollection

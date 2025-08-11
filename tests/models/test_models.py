@@ -104,8 +104,8 @@ class TestBaseModel:
         assert user.get_uri() == '/user/123'
         
         user_without_id = User({'name': 'Test User'})
-        with pytest.raises(Exception, match='Entity ID is required'):
-            user_without_id.get_uri()
+        # Updated behavior: when no ID is present, return base uri
+        assert user_without_id.get_uri() == '/user'
 
 
 @pytest.mark.models
