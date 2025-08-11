@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="mosaia",
-    version="1.0.0",
+    version="0.0.1",
     author="Mosaia Team",
     author_email="support@mosaia.ai",
     description="A comprehensive Python SDK for the Mosaia AI platform",
