@@ -32,7 +32,7 @@ Examples:
     ... })
 """
 
-__version__ = "1.0.0"
+__version__ = "0.0.1"
 __author__ = "Mosaia Team"
 __email__ = "support@mosaia.ai"
 
