@@ -273,45 +273,6 @@ class User(BaseModel[Dict[str, Any]]):
         return Clients(self.get_uri())
 
     @property
-    def groups(self):
-        """
-        Get the user's agent groups.
-
-        This property provides access to the user's agent groups through the
-        AgentGroups collection. It enables management of collaborative
-        agent teams and specialized configurations.
-
-        Returns:
-            AgentGroups collection for managing agent groups
-
-        Examples:
-            List groups:
-            >>> groups = await user.groups.get()
-            >>> for group in groups:
-            ...     print(f"Group: {group.name}")
-            ...     print(f"Agents: {len(group.agents)}")
-
-            Create specialized team:
-            >>> support_team = await user.groups.create({
-            ...     'name': 'Support Team',
-            ...     'short_description': 'Customer support specialists',
-            ...     'agents': ['billing-expert', 'tech-support', 'general-help'],
-            ...     'metadata': {
-            ...         'type': 'customer-support',
-            ...         'specialties': ['billing', 'technical', 'general'],
-            ...         'availability': '24/7',
-            ...         'routing': {
-            ...             'strategy': 'round-robin',
-            ...             'fallback': 'general-help'
-            ...         }
-            ...     }
-            ... })
-        """
-        from mosaia.collections import AgentGroups
-
-        return AgentGroups(self.get_uri())
-
-    @property
     def models(self):
         """
         Get the user's AI models.

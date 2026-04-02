@@ -220,15 +220,15 @@ class TestMosaiaClient:
                 mock_organizations.assert_called_once()
                 assert organizations == mock_organizations.return_value
 
-    def test_agent_groups_property_should_return_agent_groups_instance(self):
-        """Test that agent_groups property returns AgentGroups instance."""
+    def test_drives_property_should_return_drives_instance(self):
+        """Test that drives property returns Drives instance (Node parity)."""
         with patch("mosaia.client.ConfigurationManager"):
-            with patch("mosaia.client.AgentGroups") as mock_agent_groups:
+            with patch("mosaia.client.Drives") as mock_drives:
                 client = MosaiaClient(MosaiaConfig(api_key="test-key"))
-                agent_groups = client.agent_groups
+                drives = client.drives
 
-                mock_agent_groups.assert_called_once()
-                assert agent_groups == mock_agent_groups.return_value
+                mock_drives.assert_called_once()
+                assert drives == mock_drives.return_value
 
     def test_models_property_should_return_models_instance(self):
         """Test that models property returns Models instance."""

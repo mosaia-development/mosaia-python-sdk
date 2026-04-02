@@ -134,3 +134,10 @@ class Agent(BaseModel[Dict[str, Any]]):
             >>> print('Agent response:', response['choices'][0]['message']['content'])
         """
         return Chat(self.get_uri())
+
+    @property
+    def tools(self):
+        """Agent-scoped tools collection (Node parity: agent.tools)."""
+        from ..collections.agent_tools import AgentTools
+
+        return AgentTools(self.get_uri())

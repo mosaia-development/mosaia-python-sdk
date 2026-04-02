@@ -298,41 +298,6 @@ class Organization(BaseModel[Dict[str, Any]]):
         return OrgUsers(self.get_uri())
 
     @property
-    def groups(self):
-        """
-        Get the organization's agent groups.
-
-        This property provides access to the organization's agent groups through
-        the AgentGroups collection. It enables management of collaborative
-        agent teams and specialized agent configurations.
-
-        Returns:
-            AgentGroups collection for managing agent groups
-
-        Examples:
-            List agent groups:
-            >>> groups = await org.groups.get()
-            >>> for group in groups:
-            ...     print(f'Group: {group.name}')
-            ...     print(f'Agents: {len(group.agents)}')
-
-            Create specialized team:
-            >>> support_team = await org.groups.create({
-            ...     'name': 'Support Team',
-            ...     'short_description': 'Customer support specialists',
-            ...     'agents': ['billing-expert', 'tech-support', 'general-help'],
-            ...     'metadata': {
-            ...         'type': 'customer-support',
-            ...         'specialties': ['billing', 'technical', 'general'],
-            ...         'availability': '24/7'
-            ...     }
-            ... })
-        """
-        from mosaia.collections import AgentGroups
-
-        return AgentGroups(self.get_uri())
-
-    @property
     def clients(self):
         """
         Get the organization's OAuth clients.

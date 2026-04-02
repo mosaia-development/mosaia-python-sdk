@@ -42,11 +42,9 @@ class OrgUsers(BaseCollection[Dict[str, Any], OrgUser, Any, Any]):
 
     def __init__(self, uri: str = "", endpoint: str = "/user"):
         """
-        Creates a new OrgUsers API client instance.
-
         Args:
-            uri: Optional base URI path. If provided, the endpoint will be `${uri}/user`.
-                  If not provided, defaults to `/user`.
+            uri: Base path prefix (e.g. ``/org/{id}`` for org-scoped users).
+            endpoint: Suffix path; ``/user`` (default) or ``/org`` for user-scoped orgs (Node parity).
         """
         super().__init__(f"{uri}{endpoint}", OrgUser)
 

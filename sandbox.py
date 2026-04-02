@@ -3,7 +3,7 @@
 Sandbox script for testing the Mosaia Python SDK.
 
 This script provides a testing environment for the Mosaia Python SDK,
-similar to the Node.js sandbox.ts file. It demonstrates authentication,
+similar to the Node.js sandbox/index.ts script. It demonstrates authentication,
 API operations, and basic SDK functionality.
 
 Usage:

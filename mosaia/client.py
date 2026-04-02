@@ -13,16 +13,26 @@ from typing import Any, Dict, Optional
 
 from .auth import MosaiaAuth, OAuth
 from .collections import (
-    AgentGroups,
     Agents,
-    AppBots,
+    AppConnectors,
+    AppWebhooks,
     Apps,
-    Clients,
+    Drives,
+    Logs,
     Models,
+    Notifications,
     Organizations,
     OrgUsers,
+    Plans,
+    Scopes,
+    Search,
+    Snapshots,
+    SSO,
+    Tasks,
     Tools,
+    Triggers,
     Users,
+    VectorIndexes,
 )
 from .config import ConfigurationManager
 from .models import Session
@@ -415,31 +425,6 @@ class MosaiaClient:
         return Organizations()
 
     @property
-    def agent_groups(self) -> AgentGroups:
-        """
-        Access to Agent Groups API.
-
-        Manage agent groups for multi-agent collaboration, including CRUD operations and group-specific functionality.
-
-        Returns:
-            AgentGroups: Agent Groups API client
-
-        Examples:
-            # Get all agent groups
-            >>> groups = await mosaia.agent_groups.get()
-
-            # Get specific agent group
-            >>> group = await mosaia.agent_groups.get({}, 'group-id')
-
-            # Create chat completion with group
-            >>> completion = await mosaia.agent_groups.chat_completion('group-id', {
-            ...     'model': 'gpt-4',
-            ...     'messages': [{'role': 'user', 'content': 'Hello'}]
-            ... })
-        """
-        return AgentGroups()
-
-    @property
     def models(self) -> Models:
         """
         Access to Models API.
@@ -464,6 +449,71 @@ class MosaiaClient:
             ... })
         """
         return Models()
+
+    @property
+    def app_connectors(self) -> AppConnectors:
+        """App connectors API (Node parity: mosaia.appConnectors)."""
+        return AppConnectors()
+
+    @property
+    def app_webhooks(self) -> AppWebhooks:
+        """App webhooks API (Node parity: mosaia.appWebhooks)."""
+        return AppWebhooks()
+
+    @property
+    def search(self) -> Search:
+        """Universal search (Node parity: mosaia.search)."""
+        return Search()
+
+    @property
+    def drives(self) -> Drives:
+        """Drives API (Node parity: mosaia.drives)."""
+        return Drives()
+
+    @property
+    def logs(self) -> Logs:
+        """Agent logs API (Node parity: mosaia.logs)."""
+        return Logs()
+
+    @property
+    def plans(self) -> Plans:
+        """Plans API (Node parity: mosaia.plans)."""
+        return Plans()
+
+    @property
+    def scopes(self) -> Scopes:
+        """OAuth scopes API (Node parity: mosaia.scopes)."""
+        return Scopes()
+
+    @property
+    def sso(self) -> SSO:
+        """SSO API (Node parity: mosaia.sso)."""
+        return SSO()
+
+    @property
+    def notifications(self) -> Notifications:
+        """Notifications API (Node parity: mosaia.notifications)."""
+        return Notifications()
+
+    @property
+    def snapshots(self) -> Snapshots:
+        """Snapshots API (Node parity: mosaia.snapshots)."""
+        return Snapshots()
+
+    @property
+    def vector_indexes(self) -> VectorIndexes:
+        """Vector indexes API (Node parity: mosaia.vectorIndexes)."""
+        return VectorIndexes()
+
+    @property
+    def tasks(self) -> Tasks:
+        """Tasks API (Node parity: mosaia.tasks)."""
+        return Tasks()
+
+    @property
+    def triggers(self) -> Triggers:
+        """Triggers API (Node parity: mosaia.triggers)."""
+        return Triggers()
 
     async def session(self) -> Session:
         """

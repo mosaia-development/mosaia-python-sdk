@@ -260,7 +260,7 @@ class TestAPIClientRequestMethods:
             result = await client.delete("/users/123")
 
             mock_make_request.assert_called_once_with(
-                "DELETE", "/users/123", params=None
+                "DELETE", "/users/123", data=None, params=None
             )
             assert result == {"data": "deleted"}
 

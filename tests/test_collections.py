@@ -10,10 +10,10 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 from mosaia import (
-    AgentGroups,
     Agents,
-    AppBots,
+    AppConnectors,
     Apps,
+    Drives,
     BaseCollection,
     Clients,
     Models,
@@ -393,67 +393,45 @@ class TestModels:
             assert args[1].__name__ == "Model"  # Model class should be Model
 
 
-class TestAppBots:
-    """Test AppBots collection."""
+class TestAppConnectors:
+    """Test AppConnectors collection (Node parity)."""
 
     def test_should_initialize_with_correct_uri_and_model(self):
-        """Test that AppBots initializes with correct URI and model."""
-        with patch("mosaia.collections.app_bots.BaseCollection.__init__") as mock_init:
-            app_bots = AppBots()
-
-            # Check that the parent constructor was called with the correct URI
+        with patch(
+            "mosaia.collections.app_connectors.BaseCollection.__init__"
+        ) as mock_init:
+            AppConnectors()
             mock_init.assert_called_once()
-            args, kwargs = mock_init.call_args
-            # The arguments are: (uri, model_class) - self is not included in args
+            args, _ = mock_init.call_args
             assert len(args) == 2
-            assert args[0] == "/bot"  # URI should be '/bot'
-            assert args[1].__name__ == "AppBot"  # Model class should be AppBot
+            assert args[0] == "/connector"
+            assert args[1].__name__ == "AppConnector"
 
     def test_should_initialize_with_custom_uri(self):
-        """Test that AppBots initializes with custom URI."""
-        with patch("mosaia.collections.app_bots.BaseCollection.__init__") as mock_init:
-            app_bots = AppBots("/custom")
-
-            # Check that the parent constructor was called with the correct URI
+        with patch(
+            "mosaia.collections.app_connectors.BaseCollection.__init__"
+        ) as mock_init:
+            AppConnectors("/custom")
             mock_init.assert_called_once()
-            args, kwargs = mock_init.call_args
-            # The arguments are: (uri, model_class) - self is not included in args
-            assert len(args) == 2
-            assert args[0] == "/custom/bot"  # URI should be '/custom/bot'
-            assert args[1].__name__ == "AppBot"  # Model class should be AppBot
+            args, _ = mock_init.call_args
+            assert args[0] == "/custom/connector"
 
 
-class TestAgentGroups:
-    """Test AgentGroups collection."""
+class TestDrives:
+    """Test Drives collection (Node parity)."""
 
     def test_should_initialize_with_correct_uri_and_model(self):
-        """Test that AgentGroups initializes with correct URI and model."""
-        with patch(
-            "mosaia.collections.agent_groups.BaseCollection.__init__"
-        ) as mock_init:
-            agent_groups = AgentGroups()
-
-            # Check that the parent constructor was called with the correct URI
+        with patch("mosaia.collections.drives.BaseCollection.__init__") as mock_init:
+            Drives()
             mock_init.assert_called_once()
-            args, kwargs = mock_init.call_args
-            # The arguments are: (uri, model_class) - self is not included in args
+            args, _ = mock_init.call_args
             assert len(args) == 2
-            assert args[0] == "/agent-group"  # URI should be '/agent-group'
-            assert args[1].__name__ == "AgentGroup"  # Model class should be AgentGroup
+            assert args[0] == "/drive"
+            assert args[1].__name__ == "Drive"
 
     def test_should_initialize_with_custom_uri(self):
-        """Test that AgentGroups initializes with custom URI."""
-        with patch(
-            "mosaia.collections.agent_groups.BaseCollection.__init__"
-        ) as mock_init:
-            agent_groups = AgentGroups("/custom")
-
-            # Check that the parent constructor was called with the correct URI
+        with patch("mosaia.collections.drives.BaseCollection.__init__") as mock_init:
+            Drives("/custom")
             mock_init.assert_called_once()
-            args, kwargs = mock_init.call_args
-            # The arguments are: (uri, model_class) - self is not included in args
-            assert len(args) == 2
-            assert (
-                args[0] == "/custom/agent-group"
-            )  # URI should be '/custom/agent-group'
-            assert args[1].__name__ == "AgentGroup"  # Model class should be AgentGroup
+            args, _ = mock_init.call_args
+            assert args[0] == "/custom/drive"

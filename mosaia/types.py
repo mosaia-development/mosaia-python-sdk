@@ -109,6 +109,34 @@ class ToolInterface:
 
 
 @dataclass
+class FolderStructureEntry:
+    """Entry in the folder_structure array representing an ancestor folder."""
+
+    folder_id: str = ""
+    folder_name: str = ""
+    level: int = 0
+
+
+@dataclass
+class DriveItemInterface:
+    """Drive item interface (parity with Node SDK DriveItemInterface)."""
+
+    id: Optional[str] = None
+    drive: Optional[str] = None
+    name: Optional[str] = None
+    path: Optional[str] = None
+    size: Optional[int] = None
+    mime_type: Optional[str] = None
+    item_type: Optional[str] = None  # 'FILE' | 'FOLDER' | 'SYMLINK'
+    url: Optional[str] = None
+    parent_folder: Optional[str] = None
+    folder_structure: Optional[List[Dict[str, Any]]] = None
+    metadata: Optional[Dict[str, Any]] = None
+    external_id: Optional[str] = None
+    extensors: Optional[Dict[str, Any]] = None
+
+
+@dataclass
 class QueryParams:
     """Query parameters for API requests."""
 
@@ -227,3 +255,72 @@ class ChatCompletionResponse:
     usage: Optional[Dict[str, Any]] = None
     service_tier: str = ""
     system_fingerprint: str = ""
+
+
+# Trigger types (aligned with Node SDK and macs-node-sdk event/models/trigger)
+
+
+class TriggerType(str, Enum):
+    """Trigger type enum."""
+
+    CRON = "CRON"
+    WEBHOOK = "WEBHOOK"
+    EVENT = "EVENT"
+    MANUAL = "MANUAL"
+
+
+class TriggerStatus(str, Enum):
+    """Trigger status enum."""
+
+    ACTIVE = "ACTIVE"
+    PAUSED = "PAUSED"
+
+
+@dataclass
+class TriggerConfig:
+    """Type-specific trigger config (e.g. CRON: cron_expression, timezone, run_once)."""
+
+    cron_expression: Optional[str] = None
+    timezone: Optional[str] = None
+    run_once: Optional[bool] = None
+    eventbridge_rule_name: Optional[str] = None
+    eventbridge_rule_arn: Optional[str] = None
+    extensors: Optional[Dict[str, Any]] = None
+
+
+@dataclass
+class TriggerInterface:
+    """Trigger interface for scheduled and event-based triggers (CRON, WEBHOOK, EVENT, MANUAL)."""
+
+    id: Optional[str] = None
+    org: Optional[Any] = None
+    user: Optional[Any] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[str] = None  # TriggerType value
+    agent: Optional[Any] = None
+    task: Optional[Any] = None
+    plan: Optional[Any] = None
+    log: Optional[Any] = None
+    user_message: Optional[str] = None
+    status: Optional[str] = None  # TriggerStatus value
+    """Auto-pause when task/plan completes (main indicator for whether cron runs again)."""
+    pause_on_completion: Optional[bool] = None
+    last_triggered_at: Optional[str] = None
+    next_trigger_at: Optional[str] = None
+    trigger_count: Optional[int] = None
+    active: Optional[bool] = None
+    config: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
+    keywords: Optional[List[str]] = None
+    tags: Optional[List[str]] = None
+    external_id: Optional[str] = None
+    extensors: Optional[Dict[str, Any]] = None
+
+
+@dataclass
+class TriggerExecuteResponse:
+    """Response from the trigger execute API (202)."""
+
+    message: str = ""
+    trigger_id: Optional[str] = None  # API may return triggerId (camelCase)

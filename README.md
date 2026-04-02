@@ -72,7 +72,7 @@ new_app = await apps.create({
 
 ## Sandbox Testing
 
-The SDK includes a sandbox environment for testing and experimentation, similar to the Node.js `sandbox.ts` file.
+The SDK includes a sandbox environment for testing and experimentation, similar to the Node.js `sandbox/index.ts` script.
 
 ### Quick Setup
 

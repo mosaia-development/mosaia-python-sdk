@@ -13,11 +13,11 @@ import pytest
 # Test imports
 from mosaia.models import (
     Agent,
-    AgentGroup,
     App,
-    AppBot,
+    AppConnector,
     BaseModel,
     Client,
+    Drive,
     Model,
     Organization,
     OrgUser,
@@ -146,14 +146,6 @@ class TestUser:
         assert clients is not None
         assert hasattr(clients, "get")
         assert hasattr(clients, "create")
-
-    def test_user_groups_property(self):
-        """Test User groups property."""
-        user = User({"name": "Test User"})
-        groups = user.groups
-        assert groups is not None
-        assert hasattr(groups, "get")
-        assert hasattr(groups, "create")
 
     def test_user_models_property(self):
         """Test User models property."""
@@ -306,39 +298,29 @@ class TestOrgUser:
 
 
 @pytest.mark.models
-class TestAppBot:
-    """Test AppBot model functionality."""
+class TestAppConnector:
+    """Test AppConnector model (Node parity)."""
 
-    def test_app_bot_creation(self):
-        """Test AppBot can be instantiated."""
-        app_bot = AppBot(
+    def test_app_connector_creation(self):
+        connector = AppConnector(
             {
-                "app_id": "app-123",
-                "bot_id": "bot-456",
-                "config": {"enabled": True, "auto_reply": False},
+                "app": "app-123",
+                "response_url": "https://example.com/hook",
+                "agent": "agent-456",
             }
         )
-        assert app_bot is not None
-        assert app_bot.data["app_id"] == "app-123"
-        assert app_bot.data["bot_id"] == "bot-456"
+        assert connector is not None
+        assert connector.data["app"] == "app-123"
 
 
 @pytest.mark.models
-class TestAgentGroup:
-    """Test AgentGroup model functionality."""
+class TestDrive:
+    """Test Drive model (Node parity)."""
 
-    def test_agent_group_creation(self):
-        """Test AgentGroup can be instantiated."""
-        group = AgentGroup(
-            {
-                "name": "Support Team",
-                "description": "Customer support agents",
-                "agents": ["agent-1", "agent-2", "agent-3"],
-            }
-        )
-        assert group is not None
-        assert group.data["name"] == "Support Team"
-        assert group.data["description"] == "Customer support agents"
+    def test_drive_creation(self):
+        drive = Drive({"name": "Docs", "description": "My drive"})
+        assert drive is not None
+        assert drive.data["name"] == "Docs"
 
 
 @pytest.mark.models
@@ -412,8 +394,8 @@ class TestModelsIntegration:
         assert Agent is not None
         assert Organization is not None
         assert OrgUser is not None
-        assert AppBot is not None
-        assert AgentGroup is not None
+        assert AppConnector is not None
+        assert Drive is not None
         assert Tool is not None
         assert Client is not None
         assert Model is not None
@@ -427,8 +409,8 @@ class TestModelsIntegration:
             Agent,
             Organization,
             OrgUser,
-            AppBot,
-            AgentGroup,
+            AppConnector,
+            Drive,
             Tool,
             Client,
             Model,
@@ -448,8 +430,8 @@ class TestModelsIntegration:
             Agent,
             Organization,
             OrgUser,
-            AppBot,
-            AgentGroup,
+            AppConnector,
+            Drive,
             Tool,
             Client,
             Model,

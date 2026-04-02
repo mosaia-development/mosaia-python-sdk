@@ -1,50 +1,39 @@
 """
-Collection client exports for the Mosaia SDK.
-
-This module exports all the collection client classes that can be used to interact
-with different resources on the Mosaia platform. Each client provides
-methods for CRUD operations and specialized functionality.
-
-## Available Collection Clients
-
-- **Agents**: Manage AI agents for conversation and task execution
-- **Apps**: Manage applications and their configurations
-- **Auth**: Handle user authentication and session management
-- **Users**: Manage user accounts and profiles
-- **Organizations**: Manage organizational structures and settings
-- **OrgUsers**: Handle user-organization relationships and permissions
-- **Tools**: Manage external integrations and utilities
-- **Clients**: Manage OAuth client applications
-- **Models**: Manage AI model configurations
-- **AppBots**: Handle application-bot integrations
-- **AgentGroups**: Manage collections of AI agents
-
-Examples:
-    >>> from mosaia.collections import Apps, Tools, Agents, Auth
-
-    # Create collection clients
-    >>> apps = Apps()
-    >>> tools = Tools()
-    >>> agents = Agents()
-    >>> auth = MosaiaAuth()
-
-    # Use the clients
-    >>> all_apps = await apps.get()
-    >>> all_tools = await tools.get()
-    >>> all_agents = await agents.get()
+Collection clients — Node SDK parity (mosaia-node-sdk/src/collections/index.ts).
 """
 
-from .agent_groups import AgentGroups
+from .access_policies import AccessPolicies
+from .agent_tools import AgentTools
 from .agents import Agents
-from .app_bots import AppBots
+from .app_connectors import AppConnectors
+from .app_webhooks import AppWebhooks
 from .apps import Apps
 from .base_collection import BaseCollection
 from .clients import Clients
+from .drive_items import DriveItems
+from .drives import Drives
+from .logs import Logs
+from .messages import Messages
+from .meters import Meters
 from .models import Models
+from .notifications import Notifications
+from .org_permissions import OrgPermissions
 from .org_users import OrgUsers
 from .organizations import Organizations
+from .plans import Plans
+from .scopes import Scopes
+from .search import Search
+from .snapshots import Snapshots
+from .sso import SSO
+from .tasks import Tasks
 from .tools import Tools
+from .triggers import Triggers
+from .upload_jobs import UploadJobs
+from .user_permissions import UserPermissions
 from .users import Users
+from .vector_indexes import VectorIndexes
+from .vectors import Vectors
+from .wallets import Wallets
 
 __all__ = [
     "BaseCollection",
@@ -56,6 +45,27 @@ __all__ = [
     "Tools",
     "Clients",
     "Models",
-    "AppBots",
-    "AgentGroups",
+    "AgentTools",
+    "AppConnectors",
+    "AppWebhooks",
+    "Search",
+    "Drives",
+    "DriveItems",
+    "UploadJobs",
+    "Logs",
+    "Messages",
+    "Snapshots",
+    "Scopes",
+    "SSO",
+    "Notifications",
+    "VectorIndexes",
+    "Vectors",
+    "Tasks",
+    "Plans",
+    "Triggers",
+    "AccessPolicies",
+    "OrgPermissions",
+    "UserPermissions",
+    "Meters",
+    "Wallets",
 ]

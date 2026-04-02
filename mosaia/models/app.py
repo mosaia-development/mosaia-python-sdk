@@ -111,3 +111,17 @@ class App(BaseModel[Dict[str, Any]]):
             ... }, '/enterprise/app')
         """
         super().__init__(data, uri or "/app")
+
+    @property
+    def connectors(self):
+        """App connectors collection (Node parity: app.connectors)."""
+        from ..collections.app_connectors import AppConnectors
+
+        return AppConnectors(self.get_uri())
+
+    @property
+    def webhooks(self):
+        """App webhooks collection (Node parity: app.webhooks)."""
+        from ..collections.app_webhooks import AppWebhooks
+
+        return AppWebhooks(self.get_uri())

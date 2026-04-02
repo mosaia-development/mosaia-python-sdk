@@ -499,33 +499,27 @@ class APIClient:
         """
         return await self._make_request("PUT", path, data=data)
 
-    async def delete(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
+    async def delete(
+        self,
+        path: str,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+    ) -> Any:
         """
         Makes a DELETE request to the API.
 
         Removes resources from the system. Supports optional query parameters
-        for additional deletion options like force deletion or soft deletion.
+        and an optional JSON body (e.g. drive access revoke).
 
         Args:
             path: API endpoint path (e.g., '/user/123', '/org/456', '/agent/789')
             params: Optional query parameters for deletion options
+            data: Optional JSON body for DELETE (e.g. {'accessor': {...}})
 
         Returns:
             API response data
-
-        Examples:
-            Basic deletion:
-            >>> await client.delete('/user/123')
-            >>> await client.delete('/agent/789')
-
-            Force deletion:
-            >>> await client.delete('/org/456', {'force': True})
-            >>> await client.delete('/user/123', {
-            ...     'force': True,
-            ...     'reason': 'account_deletion'
-            ... })
         """
-        return await self._make_request("DELETE", path, params=params)
+        return await self._make_request("DELETE", path, data=data, params=params)
 
     async def post_multipart(
         self,
